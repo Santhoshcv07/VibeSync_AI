@@ -97,3 +97,27 @@ Mock data must later be replaced carefully with normalized provider data.
 ### Reconsider When
 
 Not required for the current MVP.
+
+---
+
+## ADR-005 — Semantic Adaptive Design System
+
+### Status
+
+Accepted
+
+### Decision
+
+Use one semantic design-token system with a stable VibeSync component identity and mood-specific theme values.
+
+### Reason
+
+VibeSync must visually adapt to the user's selected mood while preserving usability, accessibility, component consistency, and brand recognition.
+
+### Trade-off
+
+Mood themes require contrast testing and controlled token changes rather than unrestricted page-specific styling.
+
+### Reconsider When
+
+A future native platform requires a platform-specific visual system.
