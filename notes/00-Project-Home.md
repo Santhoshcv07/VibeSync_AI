@@ -25,18 +25,18 @@ A generated Vibe may include:
 
 ## Current Status
 
-- Current phase: Phase 3 — Design System and Shared UI
-- Phase status: Complete
-- Current completed step: Step 3.11 — Phase 3 Final Verification and Git Commit
-- Project status: Active development
+- **Current Phase:** Phase 5 — Backend Foundation and Frontend Integration
+- **Phase Status:** In Progress
+- **Current Completed Step:** Step 5.11 — Groq Client Boundary
+- **Next Milestone:** Add the Vibe prompt and structured AI-output contract.
 
 ## Approved Core Stack
 
 ### Frontend
 
-- Next.js
+- Next.js App Router (React Server Components)
+- Tailwind CSS (standard utility classes)
 - TypeScript
-- Tailwind CSS
 
 ### Backend
 
@@ -69,13 +69,21 @@ A generated Vibe may include:
 - [[08-Deployment-Notes|Deployment Notes]]
 - [[09-Future-Ideas|Future Ideas]]
 
+### Phase 5: Backend Foundation and Frontend Integration (In Progress)
+- [x] Step 5.1: Backend Inspection and Integration Planning.
+- [x] Step 5.2: Establish the verified backend application foundation.
+- [x] Step 5.3: Add configuration, environment validation, and safe CORS.
+- [x] Step 5.4: Add the health endpoint and standard API contracts.
+- [x] Step 5.5: Add backend testing foundations.
+- [x] Step 5.6: Add the centralized frontend API client.
+
 ## Development Workflow
 
 Plan → Build → Run → Test → Fix → Verify → Document → Commit → Continue
 
 ## Current Next Action
 
-Begin Phase 4 only after reviewing the Phase 3 verification result and confirming the Git commit.
+Continue Phase 5 with Step 5.12 — Add the Vibe prompt and structured AI-output contract.
 
 ## Security Reminder
 

@@ -1,62 +1,40 @@
-import { getBackendHealth } from "@/lib/api";
+import { MarketingHeader, MarketingFooter } from "@/components/marketing";
+import {
+  LandingHero,
+  EntertainmentCategoryStrip,
+  HowVibeSyncWorks,
+  TimeAwareExperience,
+  MoodShowcase,
+  RecommendationShowcase,
+  SocialProof,
+  LandingFinalCta,
+} from "@/components/landing";
 
-export default async function Home() {
-  let backendStatus = "Unavailable";
-  let backendService = "Unknown";
-  let backendHealth = "Unknown";
-  let errorMsg = "";
-
-  try {
-    const health = await getBackendHealth();
-    backendStatus = "Connected";
-    backendService = health.service;
-    backendHealth = health.status;
-  } catch {
-    backendStatus = "Unavailable";
-    errorMsg = "Please start the FastAPI backend on port 8000 (uvicorn app.main:app --app-dir backend --reload)";
-  }
-
+export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 text-gray-900 p-8">
-      <h1 className="text-4xl font-bold mb-2">VibeSync AI</h1>
-      <h2 className="text-xl text-gray-600 mb-8">Local Development Setup</h2>
+    <div className="flex flex-col min-h-screen bg-[var(--background)] text-foreground overflow-x-hidden">
+      <a
+        href="#landing-main-content"
+        className="fixed top-0 left-0 p-4 -translate-y-full focus:translate-y-0 z-50 bg-[var(--primary)] text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--focus-ring)] transition-transform"
+      >
+        Skip to content
+      </a>
 
-      <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
-        <ul className="space-y-4">
-          <li className="flex justify-between border-b pb-2">
-            <span className="font-semibold">Frontend:</span>
-            <span className="text-green-600 font-medium">Running</span>
-          </li>
-          <li className="flex justify-between border-b pb-2">
-            <span className="font-semibold">Backend:</span>
-            <span className={backendStatus === "Connected" ? "text-green-600 font-medium" : "text-red-600 font-medium"}>
-              {backendStatus}
-            </span>
-          </li>
-          {backendStatus === "Connected" && (
-            <>
-              <li className="flex justify-between border-b pb-2">
-                <span className="font-semibold">Service Name:</span>
-                <span>{backendService}</span>
-              </li>
-              <li className="flex justify-between border-b pb-2">
-                <span className="font-semibold">Service Status:</span>
-                <span className="capitalize">{backendHealth}</span>
-              </li>
-            </>
-          )}
-        </ul>
+      <MarketingHeader />
+      
+      <main id="landing-main-content" className="flex-1 flex flex-col w-full focus:outline-none" tabIndex={-1}>
+        <LandingHero />
+        <EntertainmentCategoryStrip />
+        <HowVibeSyncWorks />
+        <TimeAwareExperience />
+        <MoodShowcase />
+        <RecommendationShowcase />
+        <SocialProof />
+        <LandingFinalCta />
+      </main>
 
-        {errorMsg && (
-          <div className="mt-4 p-3 bg-red-50 text-red-700 text-sm rounded border border-red-200">
-            {errorMsg}
-          </div>
-        )}
-      </div>
-
-      <p className="mt-8 text-sm text-gray-500 italic max-w-md text-center">
-        Temporary setup verification page — the official VibeSync interface will be built in a later phase.
-      </p>
+      <MarketingFooter />
     </div>
   );
 }
+

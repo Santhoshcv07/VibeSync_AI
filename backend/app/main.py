@@ -1,36 +1,26 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.router import api_router
+from app.core.config import settings
+from app.core.exceptions import setup_exception_handlers
+
 app = FastAPI(
-    title="VibeSync AI API",
-    version="0.1.0",
-    description="Backend API for the VibeSync AI entertainment discovery platform.",
+    title=settings.PROJECT_NAME,
+    version=settings.VERSION,
+    description=settings.DESCRIPTION,
 )
 
-origins = [
-    "http://localhost:3000",
-]
+if settings.CORS_ORIGINS:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.CORS_ORIGINS,
+        allow_credentials=False,
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allow_headers=["Content-Type", "Accept"],
+    )
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
-@app.get("/")
-async def root() -> dict[str, str]:
-    return {
-        "message": "VibeSync AI API is running",
-        "status": "healthy",
-    }
+app.include_router(api_router)
+setup_exception_handlers(app)
 
 
-@app.get("/health")
-async def health_check() -> dict[str, str]:
-    return {
-        "status": "healthy",
-        "service": "vibesync-api",
-    }
