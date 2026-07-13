@@ -35,7 +35,7 @@ class BookAIRecommendation(BaseAIRecommendation):
     pass
 
 class StructuredVibeAIOutput(BaseModel):
-    music: MusicAIRecommendation
+    music: List[MusicAIRecommendation] = Field(..., min_length=3, max_length=3, description="Exactly 3 music recommendations")
     movie: MovieAIRecommendation
     youtube: YouTubeAIRecommendation
     pinterest: PinterestAIRecommendation

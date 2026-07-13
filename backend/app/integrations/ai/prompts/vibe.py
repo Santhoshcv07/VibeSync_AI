@@ -36,14 +36,32 @@ Ensure diverse but coherent recommendations across categories (avoid repeating t
 
 EXACT JSON SHAPE (use placeholders as examples, do not use real user data):
 {
-  "music": {
-    "title": "Placeholder Song",
-    "creator": "Placeholder Artist",
-    "description": "Why this fits the vibe",
-    "format": "Track",
-    "tags": ["ambient"],
-    "duration": "3m 30s"
-  },
+  "music": [
+    {
+      "title": "Placeholder Song 1",
+      "creator": "Placeholder Artist 1",
+      "description": "Why this fits the vibe",
+      "format": "Track",
+      "tags": ["ambient"],
+      "duration": "3m 30s"
+    },
+    {
+      "title": "Placeholder Song 2",
+      "creator": "Placeholder Artist 2",
+      "description": "Why this fits the vibe",
+      "format": "Track",
+      "tags": ["ambient"],
+      "duration": "4m 15s"
+    },
+    {
+      "title": "Placeholder Song 3",
+      "creator": "Placeholder Artist 3",
+      "description": "Why this fits the vibe",
+      "format": "Track",
+      "tags": ["ambient"],
+      "duration": "3m 45s"
+    }
+  ],
   "movie": {
     "title": "Placeholder Movie",
     "creator": "Placeholder Director",

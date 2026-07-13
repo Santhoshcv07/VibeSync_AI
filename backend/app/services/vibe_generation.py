@@ -28,25 +28,28 @@ def map_ai_output_to_vibe_data(request: GenerateVibeRequest, ai_output: Structur
     vibe_id = str(uuid.uuid4())
     
     # Music
-    music_item = MusicRecommendation(
-        id=str(uuid.uuid4()),
-        title=ai_output.music.title,
-        creator=ai_output.music.creator,
-        description=ai_output.music.description,
-        format=ai_output.music.format,
-        providerLabel="Spotify",
-        actionLabel="Listen on Spotify",
-        artworkVariant=VibeArtworkVariant.aurora,
-        tags=ai_output.music.tags,
-        duration=ai_output.music.duration
-    )
+    music_items = [
+        MusicRecommendation(
+            id=str(uuid.uuid4()),
+            title=music.title,
+            creator=music.creator,
+            description=music.description,
+            format=music.format,
+            providerLabel="Spotify",
+            actionLabel="Listen on Spotify",
+            artworkVariant=VibeArtworkVariant.aurora,
+            tags=music.tags,
+            duration=music.duration
+        )
+        for music in ai_output.music
+    ]
     music_section = VibeMediaSection(
         id=str(uuid.uuid4()),
         category=VibeMediaCategory.music,
         eyebrow="Set the tone",
         title="Music to match your mood",
         description="A handpicked soundscape for this exact moment.",
-        items=[music_item]
+        items=music_items
     )
 
     # Movie

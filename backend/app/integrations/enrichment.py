@@ -1,6 +1,7 @@
 import httpx
 import logging
 from typing import Optional
+from urllib.parse import quote
 from app.core.config import settings
 from app.schemas.vibe import (
     MusicRecommendation,
@@ -17,40 +18,35 @@ import uuid
 logger = logging.getLogger(__name__)
 
 async def enrich_music(item: MusicRecommendation) -> MusicRecommendation:
-    if not settings.SPOTIFY_CLIENT_ID or not settings.SPOTIFY_CLIENT_SECRET or settings.SPOTIFY_CLIENT_ID.startswith("YOUR_"):
-        return item
-    
     try:
         async with httpx.AsyncClient() as client:
-            # 1. Get token
-            token_res = await client.post(
-                "https://accounts.spotify.com/api/token",
-                data={"grant_type": "client_credentials"},
-                auth=(settings.SPOTIFY_CLIENT_ID, settings.SPOTIFY_CLIENT_SECRET),
-                timeout=5.0
-            )
-            token_res.raise_for_status()
-            token = token_res.json().get("access_token")
-            
-            # 2. Search
-            query = f"track:{item.title} artist:{item.creator}"
+            # Search iTunes API
+            query = f"{item.title} {item.creator}"
             search_res = await client.get(
-                "https://api.spotify.com/v1/search",
-                params={"q": query, "type": "track", "limit": 1},
-                headers={"Authorization": f"Bearer {token}"},
+                "https://itunes.apple.com/search",
+                params={
+                    "term": query,
+                    "media": "music",
+                    "entity": "song",
+                    "limit": 5
+                },
                 timeout=5.0
             )
             search_res.raise_for_status()
-            tracks = search_res.json().get("tracks", {}).get("items", [])
+            results = search_res.json().get("results", [])
             
-            if tracks:
-                track = tracks[0]
-                item.destinationUrl = track.get("external_urls", {}).get("spotify")
-                images = track.get("album", {}).get("images", [])
-                if images:
-                    item.imageUrl = images[0].get("url")
+            if results:
+                track = results[0]
+                # Get artworkUrl100 and upgrade to 600x600
+                artwork_url = track.get("artworkUrl100")
+                if artwork_url:
+                    item.imageUrl = artwork_url.replace("100x100", "600x600")
+                
+                # Set destinationUrl to Spotify search URL
+                spotify_query = quote(f"{item.title} {item.creator}")
+                item.destinationUrl = f"https://open.spotify.com/search/{spotify_query}"
     except Exception as e:
-        logger.warning(f"Spotify enrichment failed for {item.title}: {e}")
+        logger.warning(f"iTunes enrichment failed for {item.title}: {e}")
         
     return item
 

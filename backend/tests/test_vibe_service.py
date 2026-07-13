@@ -14,7 +14,11 @@ class TestVibeGenerationService(unittest.IsolatedAsyncioTestCase):
         
         self.valid_raw_content = """
         {
-            "music": {"title": "T", "creator": "C", "description": "D", "format": "F", "tags": ["T"]},
+            "music": [
+                {"title": "T1", "creator": "C1", "description": "D1", "format": "F1", "tags": ["T1"]},
+                {"title": "T2", "creator": "C2", "description": "D2", "format": "F2", "tags": ["T2"]},
+                {"title": "T3", "creator": "C3", "description": "D3", "format": "F3", "tags": ["T3"]}
+            ],
             "movie": {"title": "T", "creator": "C", "description": "D", "format": "F", "tags": ["T"]},
             "youtube": {"title": "T", "creator": "C", "description": "D", "format": "F", "tags": ["T"]},
             "pinterest": {"title": "T", "creator": "C", "description": "D", "format": "F", "tags": ["T"]},
@@ -70,7 +74,10 @@ class TestVibeGenerationService(unittest.IsolatedAsyncioTestCase):
         self.assertIsInstance(result, GeneratedVibeData)
         self.assertEqual(result.mood, "chill")
         self.assertEqual(len(result.sections), 5)
-        self.assertEqual(result.sections[0].items[0].title, "T")
+        self.assertEqual(len(result.sections[0].items), 3)
+        self.assertEqual(result.sections[0].items[0].title, "T1")
+        self.assertEqual(result.sections[0].items[1].title, "T2")
+        self.assertEqual(result.sections[0].items[2].title, "T3")
 
     @patch("app.services.vibe_generation.settings")
     @patch("app.services.vibe_generation.create_groq_client")

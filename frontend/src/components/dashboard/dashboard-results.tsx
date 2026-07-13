@@ -81,7 +81,7 @@ export function DashboardResults({ vibe, dashboardState }: DashboardResultsProps
       <div className="flex flex-col gap-6">
         {/* Row 1: Music (50%) + YouTube (50%) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-auto">
-          <MusicSection section={musicSection} isInitial={isInitial} isLoading={isLoading} />
+          <MusicSection section={musicSection} isInitial={isInitial} isLoading={isLoading} mood={vibe?.mood} />
           <YouTubeSection section={youtubeSection} isInitial={isInitial} isLoading={isLoading} />
         </div>
         

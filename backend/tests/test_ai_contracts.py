@@ -16,14 +16,32 @@ from app.schemas.vibe import (
 class TestAIContracts(unittest.TestCase):
     def setUp(self):
         self.valid_data = {
-            "music": {
-                "title": "Ambient Sounds",
-                "creator": "Nature",
-                "description": "Relaxing",
-                "format": "Playlist",
-                "tags": ["ambient"],
-                "duration": "1h"
-            },
+            "music": [
+                {
+                    "title": "Ambient Sounds",
+                    "creator": "Nature",
+                    "description": "Relaxing",
+                    "format": "Playlist",
+                    "tags": ["ambient"],
+                    "duration": "1h"
+                },
+                {
+                    "title": "Chill Beats",
+                    "creator": "Artist",
+                    "description": "Lo-fi",
+                    "format": "Album",
+                    "tags": ["lofi"],
+                    "duration": "45m"
+                },
+                {
+                    "title": "Peaceful Piano",
+                    "creator": "Composer",
+                    "description": "Calm",
+                    "format": "Track",
+                    "tags": ["piano"],
+                    "duration": "3m"
+                }
+            ],
             "movie": {
                 "title": "Quiet Place",
                 "creator": "Director",
@@ -56,7 +74,10 @@ class TestAIContracts(unittest.TestCase):
 
     def test_valid_structured_output(self):
         output = StructuredVibeAIOutput(**self.valid_data)
-        self.assertEqual(output.music.title, "Ambient Sounds")
+        self.assertEqual(len(output.music), 3)
+        self.assertEqual(output.music[0].title, "Ambient Sounds")
+        self.assertEqual(output.music[1].title, "Chill Beats")
+        self.assertEqual(output.music[2].title, "Peaceful Piano")
         self.assertEqual(output.book.creator, "Cal Newport")
 
     def test_missing_category_rejected(self):
@@ -67,7 +88,26 @@ class TestAIContracts(unittest.TestCase):
 
     def test_empty_string_rejected(self):
         invalid_data = self.valid_data.copy()
-        invalid_data["music"]["title"] = "   "
+        invalid_data["music"][0]["title"] = "   "
+        with self.assertRaises(ValidationError):
+            StructuredVibeAIOutput(**invalid_data)
+
+    def test_music_requires_exactly_3_items(self):
+        # Test with less than 3 items
+        invalid_data = self.valid_data.copy()
+        invalid_data["music"] = invalid_data["music"][:2]
+        with self.assertRaises(ValidationError):
+            StructuredVibeAIOutput(**invalid_data)
+        
+        # Test with more than 3 items
+        invalid_data = self.valid_data.copy()
+        invalid_data["music"].append({
+            "title": "Extra Song",
+            "creator": "Extra Artist",
+            "description": "Extra",
+            "format": "Track",
+            "tags": ["extra"]
+        })
         with self.assertRaises(ValidationError):
             StructuredVibeAIOutput(**invalid_data)
 
@@ -75,19 +115,22 @@ class TestAIContracts(unittest.TestCase):
         # Prove that internal AI output can populate the public GeneratedVibeData contract
         ai_output = StructuredVibeAIOutput(**self.valid_data)
         
-        # Test mapping
-        music_rec = MusicRecommendation(
-            id="test-music-id",
-            title=ai_output.music.title,
-            creator=ai_output.music.creator,
-            description=ai_output.music.description,
-            format=ai_output.music.format,
-            providerLabel="Spotify",
-            actionLabel="Listen",
-            artworkVariant=VibeArtworkVariant.aurora,
-            tags=ai_output.music.tags,
-            duration=ai_output.music.duration
-        )
+        # Test mapping for 3 music items
+        music_recs = [
+            MusicRecommendation(
+                id=f"test-music-id-{i}",
+                title=music.title,
+                creator=music.creator,
+                description=music.description,
+                format=music.format,
+                providerLabel="Spotify",
+                actionLabel="Listen",
+                artworkVariant=VibeArtworkVariant.aurora,
+                tags=music.tags,
+                duration=music.duration
+            )
+            for i, music in enumerate(ai_output.music)
+        ]
         
         movie_rec = MovieRecommendation(
             id="test-movie-id",
@@ -152,7 +195,7 @@ class TestAIContracts(unittest.TestCase):
                     eyebrow="Listen",
                     title="Sounds",
                     description="Audio",
-                    items=[music_rec]
+                    items=music_recs
                 ),
                 VibeMediaSection(
                     id="sec-movie",
@@ -190,7 +233,10 @@ class TestAIContracts(unittest.TestCase):
         )
         
         # Verify no required fields were lost in translation
+        self.assertEqual(len(vibe_data.sections[0].items), 3)
         self.assertEqual(vibe_data.sections[0].items[0].title, "Ambient Sounds")
+        self.assertEqual(vibe_data.sections[0].items[1].title, "Chill Beats")
+        self.assertEqual(vibe_data.sections[0].items[2].title, "Peaceful Piano")
         self.assertEqual(vibe_data.sections[1].items[0].title, "Quiet Place")
         self.assertEqual(vibe_data.sections[2].items[0].title, "Study with me")
         self.assertEqual(vibe_data.sections[3].items[0].title, "Cozy Room")
