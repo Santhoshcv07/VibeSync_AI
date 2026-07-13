@@ -6,14 +6,34 @@ class TestVibesAPI(unittest.TestCase):
     def setUp(self):
         self.client = TestClient(app)
 
-    def test_generate_vibe_not_implemented(self):
+    from unittest.mock import patch
+
+    @patch("app.api.endpoints.vibes.VibeGenerationService.generate")
+    def test_successful_vibe_generation(self, mock_generate):
+        mock_generate.return_value = {"id": "123", "title": "Chill Vibe", "mood": "chill", "duration": "", "description": "", "intention": "", "journeySummary": "", "sections": []}
         response = self.client.post("/api/v1/vibes/generate", json={"mood": "chill"})
-        self.assertEqual(response.status_code, 501)
+        self.assertEqual(response.status_code, 200)
         data = response.json()
-        self.assertIn("error", data)
-        self.assertEqual(data["error"]["code"], "NOT_IMPLEMENTED")
-        self.assertEqual(data["error"]["message"], "Vibe generation is not available yet.")
-        
+        self.assertEqual(data["data"]["id"], "123")
+        mock_generate.assert_called_once()
+
+    @patch("app.api.endpoints.vibes.VibeGenerationService.generate")
+    def test_ai_disabled_returns_503(self, mock_generate):
+        from app.core.exceptions import AIClientConfigurationError
+        mock_generate.side_effect = AIClientConfigurationError("Disabled")
+        response = self.client.post("/api/v1/vibes/generate", json={"mood": "chill"})
+        self.assertEqual(response.status_code, 503)
+        data = response.json()
+        self.assertEqual(data["error"]["code"], "AI_UNAVAILABLE")
+
+    @patch("app.api.endpoints.vibes.VibeGenerationService.generate")
+    def test_ai_provider_failure_returns_502(self, mock_generate):
+        from app.integrations.ai.exceptions import AICompletionError
+        mock_generate.side_effect = AICompletionError("Fail")
+        response = self.client.post("/api/v1/vibes/generate", json={"mood": "chill"})
+        self.assertEqual(response.status_code, 502)
+        data = response.json()
+        self.assertEqual(data["error"]["code"], "AI_GENERATION_FAILED")
     def test_validation_missing_mood(self):
         response = self.client.post("/api/v1/vibes/generate", json={})
         self.assertEqual(response.status_code, 422)

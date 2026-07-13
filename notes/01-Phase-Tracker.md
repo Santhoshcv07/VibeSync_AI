@@ -90,7 +90,9 @@ Status: In Progress
 - [x] Step 5.9 — Add the Vibe-generation service boundary
 - [x] Step 5.10 — Add the AI-provider configuration boundary
 - [x] Step 5.11 — Add the Groq client boundary
-- [ ] Step 5.12 — Add the Vibe prompt and structured AI-output contract
+- [x] Step 5.12 — Add the Vibe prompt and structured AI-output contract
+- [x] Step 5.13 — Add the mocked Groq completion and structured-response parser boundary
+- [ ] Step 5.14 — Integrate mocked AI generation into the Vibe service
 
 ## Future Phases
 - [ ] Phase 6 — Core Generation Features

@@ -1,4 +1,4 @@
-from typing import Literal, Union, Any
+from typing import Literal, Union, Any, Optional
 from pydantic import Field, field_validator, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -15,6 +15,15 @@ class Settings(BaseSettings):
     AI_PROVIDER: Literal["groq"] = "groq"
     GROQ_API_KEY: SecretStr | None = None
     GROQ_MODEL: str = "llama3-8b-8192"
+    
+    # Provider keys
+    SPOTIFY_CLIENT_ID: Optional[str] = None
+    SPOTIFY_CLIENT_SECRET: Optional[str] = None
+    YOUTUBE_API_KEY: Optional[str] = None
+    TMDB_API_KEY: Optional[str] = None
+    VISUAL_PROVIDER: Optional[str] = "unsplash"
+    VISUAL_PROVIDER_API_KEY: Optional[str] = None
+    GOOGLE_BOOKS_API_KEY: Optional[str] = None
 
     CORS_ORIGINS: Any = Field(default=["http://localhost:3000"])
 

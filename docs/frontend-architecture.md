@@ -978,3 +978,67 @@ Current backend product behavior remains:
 - POST /api/v1/vibes/generate
 - Valid request: 501 Not Implemented
 - Groq client connected to Vibe generation: No
+
+## Backend Vibe Prompt and AI-Output Contract
+
+Phase 5, Step 5.12 added backend-only prompt construction and an internal structured AI-output contract.
+
+Current frontend status:
+
+- No prompt is exposed to the browser.
+- No system instruction is exposed through the product API.
+- No AI-output contract is exposed as a new frontend API.
+- No API key is exposed to the browser.
+- No Groq client exists in the frontend.
+- No frontend AI request exists.
+- No frontend product API request exists.
+- Generate Vibe interface is unchanged.
+- Generated Vibe interface is unchanged.
+- Existing health integration remains unchanged.
+- Existing mood-driven themes remain unchanged.
+
+Current backend product behavior remains:
+
+- POST /api/v1/vibes/generate
+- Valid request: 501 Not Implemented
+- Prompt connected to Vibe generation: No
+- Groq connected to Vibe generation: No
+
+## Backend Mocked Completion and Parser Boundary
+
+Phase 5, Step 5.13 added isolated backend completion and strict structured-response parsing boundaries.
+
+Current frontend status:
+
+- No API key is exposed to the browser.
+- No prompt is exposed to the browser.
+- No raw provider response is exposed to the browser.
+- No AI parser is exposed as a frontend API.
+- No Groq client exists in the frontend.
+- No frontend AI request exists.
+- No frontend product API request exists.
+- Generate Vibe interface is unchanged.
+- Generated Vibe interface is unchanged.
+- Existing health integration remains unchanged.
+- Existing mood-driven themes remain unchanged.
+
+Current backend product behavior remains:
+
+- POST /api/v1/vibes/generate
+- Valid request: 501 Not Implemented
+- Completion connected to Vibe generation: No
+- Parser connected to Vibe generation: No
+- Live Groq request: No
+
+## Phase 5, Step 5.16 — Connect the Frontend Generate Vibe Flow
+
+Status: Completed
+
+The frontend `GenerateVibeForm` has been connected to the real `POST /api/v1/vibes/generate` route using a typed API client fetch layer.
+
+Integration details:
+- **API Function:** `generateVibe` added to `src/lib/api/vibes.ts`.
+- **Form State:** Removed the fake timeout simulation. Added safe error states, loading states, and error handling for timeouts, server unavailability, AI configuration failures, and network errors.
+- **Rendering:** On successful generation, the `VibeExperienceClient` (the existing Generated Vibe component) is rendered immediately with the returned backend `VibeExperienceData`.
+- **Error Safety:** Backend API errors are cleanly caught by `ApiError` and mapped into safe, user-friendly UI alerts without exposing provider details or stack traces.
+- **Retry Logic:** Safe, on-demand retry button added explicitly for failed generation attempts.

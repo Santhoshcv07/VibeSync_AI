@@ -1,0 +1,197 @@
+import unittest
+from pydantic import ValidationError
+from app.integrations.ai.contracts import StructuredVibeAIOutput, MusicAIRecommendation, MovieAIRecommendation, YouTubeAIRecommendation, PinterestAIRecommendation, BookAIRecommendation
+from app.schemas.vibe import (
+    GeneratedVibeData, 
+    VibeMediaSection, 
+    MusicRecommendation, 
+    MovieRecommendation,
+    YouTubeRecommendation,
+    PinterestRecommendation,
+    BookRecommendation,
+    VibeArtworkVariant,
+    VibeMediaCategory
+)
+
+class TestAIContracts(unittest.TestCase):
+    def setUp(self):
+        self.valid_data = {
+            "music": {
+                "title": "Ambient Sounds",
+                "creator": "Nature",
+                "description": "Relaxing",
+                "format": "Playlist",
+                "tags": ["ambient"],
+                "duration": "1h"
+            },
+            "movie": {
+                "title": "Quiet Place",
+                "creator": "Director",
+                "description": "Silent",
+                "format": "Movie",
+                "tags": ["thriller"]
+            },
+            "youtube": {
+                "title": "Study with me",
+                "creator": "Student",
+                "description": "Focus",
+                "format": "Video",
+                "tags": ["study", "lofi"]
+            },
+            "pinterest": {
+                "title": "Cozy Room",
+                "creator": "Designer",
+                "description": "Inspo",
+                "format": "Board",
+                "tags": ["cozy", "interior"]
+            },
+            "book": {
+                "title": "Deep Work",
+                "creator": "Cal Newport",
+                "description": "Focus",
+                "format": "Non-fiction",
+                "tags": ["productivity"]
+            }
+        }
+
+    def test_valid_structured_output(self):
+        output = StructuredVibeAIOutput(**self.valid_data)
+        self.assertEqual(output.music.title, "Ambient Sounds")
+        self.assertEqual(output.book.creator, "Cal Newport")
+
+    def test_missing_category_rejected(self):
+        invalid_data = self.valid_data.copy()
+        del invalid_data["music"]
+        with self.assertRaises(ValidationError):
+            StructuredVibeAIOutput(**invalid_data)
+
+    def test_empty_string_rejected(self):
+        invalid_data = self.valid_data.copy()
+        invalid_data["music"]["title"] = "   "
+        with self.assertRaises(ValidationError):
+            StructuredVibeAIOutput(**invalid_data)
+
+    def test_public_compatibility(self):
+        # Prove that internal AI output can populate the public GeneratedVibeData contract
+        ai_output = StructuredVibeAIOutput(**self.valid_data)
+        
+        # Test mapping
+        music_rec = MusicRecommendation(
+            id="test-music-id",
+            title=ai_output.music.title,
+            creator=ai_output.music.creator,
+            description=ai_output.music.description,
+            format=ai_output.music.format,
+            providerLabel="Spotify",
+            actionLabel="Listen",
+            artworkVariant=VibeArtworkVariant.aurora,
+            tags=ai_output.music.tags,
+            duration=ai_output.music.duration
+        )
+        
+        movie_rec = MovieRecommendation(
+            id="test-movie-id",
+            title=ai_output.movie.title,
+            creator=ai_output.movie.creator,
+            description=ai_output.movie.description,
+            format=ai_output.movie.format,
+            providerLabel="TMDB",
+            actionLabel="View",
+            artworkVariant=VibeArtworkVariant.midnight_window,
+            tags=ai_output.movie.tags
+        )
+        
+        youtube_rec = YouTubeRecommendation(
+            id="test-yt-id",
+            title=ai_output.youtube.title,
+            creator=ai_output.youtube.creator,
+            description=ai_output.youtube.description,
+            format=ai_output.youtube.format,
+            providerLabel="YouTube",
+            actionLabel="Watch",
+            artworkVariant=VibeArtworkVariant.soft_motion,
+            tags=ai_output.youtube.tags
+        )
+        
+        pinterest_rec = PinterestRecommendation(
+            id="test-pin-id",
+            title=ai_output.pinterest.title,
+            creator=ai_output.pinterest.creator,
+            description=ai_output.pinterest.description,
+            format=ai_output.pinterest.format,
+            providerLabel="Pinterest",
+            actionLabel="Explore",
+            artworkVariant=VibeArtworkVariant.paper_moon,
+            tags=ai_output.pinterest.tags
+        )
+        
+        book_rec = BookRecommendation(
+            id="test-book-id",
+            title=ai_output.book.title,
+            creator=ai_output.book.creator,
+            description=ai_output.book.description,
+            format=ai_output.book.format,
+            providerLabel="Google Books",
+            actionLabel="Read",
+            artworkVariant=VibeArtworkVariant.floating_pages,
+            tags=ai_output.book.tags
+        )
+        
+        vibe_data = GeneratedVibeData(
+            id="test-vibe-id",
+            title="A Good Vibe",
+            mood="chill",
+            duration="15-min",
+            description="Generated vibe",
+            intention="Relax",
+            journeySummary="A relaxing journey",
+            sections=[
+                VibeMediaSection(
+                    id="sec-music",
+                    category=VibeMediaCategory.music,
+                    eyebrow="Listen",
+                    title="Sounds",
+                    description="Audio",
+                    items=[music_rec]
+                ),
+                VibeMediaSection(
+                    id="sec-movie",
+                    category=VibeMediaCategory.movies_shows,
+                    eyebrow="Watch",
+                    title="Cinema",
+                    description="Video",
+                    items=[movie_rec]
+                ),
+                VibeMediaSection(
+                    id="sec-yt",
+                    category=VibeMediaCategory.youtube,
+                    eyebrow="Stream",
+                    title="Clips",
+                    description="Online Video",
+                    items=[youtube_rec]
+                ),
+                VibeMediaSection(
+                    id="sec-pin",
+                    category=VibeMediaCategory.visual_inspiration,
+                    eyebrow="Look",
+                    title="Images",
+                    description="Inspo",
+                    items=[pinterest_rec]
+                ),
+                VibeMediaSection(
+                    id="sec-book",
+                    category=VibeMediaCategory.books,
+                    eyebrow="Read",
+                    title="Pages",
+                    description="Text",
+                    items=[book_rec]
+                )
+            ]
+        )
+        
+        # Verify no required fields were lost in translation
+        self.assertEqual(vibe_data.sections[0].items[0].title, "Ambient Sounds")
+        self.assertEqual(vibe_data.sections[1].items[0].title, "Quiet Place")
+        self.assertEqual(vibe_data.sections[2].items[0].title, "Study with me")
+        self.assertEqual(vibe_data.sections[3].items[0].title, "Cozy Room")
+        self.assertEqual(vibe_data.sections[4].items[0].title, "Deep Work")

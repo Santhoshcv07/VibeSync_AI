@@ -27,8 +27,8 @@ A generated Vibe may include:
 
 - **Current Phase:** Phase 5 — Backend Foundation and Frontend Integration
 - **Phase Status:** In Progress
-- **Current Completed Step:** Step 5.11 — Groq Client Boundary
-- **Next Milestone:** Add the Vibe prompt and structured AI-output contract.
+- **Current Completed Step:** Step 5.13 — Mocked Groq Completion and Structured-Response Parser Boundary
+- **Next Milestone:** Integrate mocked AI generation into the Vibe service.
 
 ## Approved Core Stack
 
@@ -83,7 +83,7 @@ Plan → Build → Run → Test → Fix → Verify → Document → Commit → C
 
 ## Current Next Action
 
-Continue Phase 5 with Step 5.12 — Add the Vibe prompt and structured AI-output contract.
+Continue Phase 5 with Step 5.14 — Integrate mocked AI generation into the Vibe service.
 
 ## Security Reminder
 

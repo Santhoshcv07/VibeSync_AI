@@ -19,37 +19,27 @@ export function VibeSyncBrand({
       href={href}
       onClick={onClick}
       className={cn(
-        "group flex items-center gap-2.5 rounded-[var(--radius-md)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]",
+        "group flex items-center gap-3 rounded-[var(--radius-md)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]",
         className
       )}
       aria-label="VibeSync AI Home"
     >
-      <div
-        className="flex shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--primary)] to-indigo-600 p-1.5 shadow-[var(--shadow-sm)]"
-        aria-hidden="true"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="h-5 w-5 text-white"
-        >
-          <path d="M12 2v20" />
-          <path d="M17 5v14" />
-          <path d="M22 10v4" />
-          <path d="M7 5v14" />
-          <path d="M2 10v4" />
-        </svg>
+      {/* Colorful Equalizer Logo */}
+      <div className="flex shrink-0 items-center gap-[3px]" aria-hidden="true">
+        <div className="w-[5px] h-[10px] rounded-full bg-[#00e5ff]"></div>
+        <div className="w-[5px] h-[18px] rounded-full bg-[#3a86ff]"></div>
+        <div className="w-[5px] h-[26px] rounded-full bg-[#8338ec]"></div>
+        <div className="w-[5px] h-[18px] rounded-full bg-gradient-to-b from-[#ffbe0b] to-[#ff006e]"></div>
+        <div className="w-[5px] h-[10px] rounded-full bg-[#ff006e]"></div>
       </div>
 
-      <span className="flex items-baseline gap-1 text-title font-display font-semibold tracking-tight text-foreground">
-        VibeSync
+      <span className="flex items-baseline text-2xl font-bold tracking-tight">
+        <span className="text-white">Vibe</span>
+        <span className="bg-gradient-to-b from-[#ff8fa3] to-[#ff0a54] bg-clip-text text-transparent">
+          Sync
+        </span>
         {!compact && (
-          <span className="text-caption font-semibold uppercase tracking-wider text-[var(--primary)]">
+          <span className="ml-1.5 bg-gradient-to-b from-[#b558f6] to-[#732bf5] bg-clip-text text-transparent">
             AI
           </span>
         )}

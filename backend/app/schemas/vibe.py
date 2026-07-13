@@ -52,6 +52,8 @@ class BaseRecommendation(BaseModel):
     artworkVariant: VibeArtworkVariant
     tags: List[str]
     duration: Optional[str] = None
+    imageUrl: Optional[str] = None
+    destinationUrl: Optional[str] = None
 
 class MusicRecommendation(BaseRecommendation):
     category: VibeMediaCategory = Field(default=VibeMediaCategory.music)

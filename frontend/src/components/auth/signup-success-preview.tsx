@@ -40,11 +40,11 @@ export function SignupSuccessPreview({ onReset }: SignupSuccessPreviewProps) {
       </p>
 
       <div className="flex flex-col gap-3 w-full">
-        <Button asChild variant="primary" fullWidth className="font-semibold">
-<Link href="/login">
+        <Link href="/login" className="w-full">
+          <Button variant="primary" fullWidth className="font-semibold">
             Continue to Login
-          </Link>
-</Button>
+          </Button>
+        </Link>
         <Button variant="outline" fullWidth onClick={onReset}>
           Return to Form
         </Button>

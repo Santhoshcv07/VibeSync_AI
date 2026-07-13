@@ -1383,3 +1383,252 @@ Current public behavior:
 Known limitation:
 
 - The Groq client boundary exists, but no prompt, completion request, response parsing, or Vibe-generation integration is implemented.
+
+## Phase 5, Step 5.12 — Vibe Prompt and Structured AI-Output Contract
+
+Status: Completed
+
+Internal AI-output contract:
+
+- Contract source: ackend/app/integrations/ai/contracts.py
+- Root model: StructuredVibeAIOutput
+- Validation framework: Pydantic 2
+- Provider-neutral: Yes
+- Required categories: music, movie, youtube, pinterest, ook
+- Recommendation count: 1 per category
+- Extra root fields: Forbidden by default in Pydantic schema
+- Extra nested fields: Forbidden by default
+- Public compatibility: Verified
+- Production mapper: Not added (test-only construction for now)
+
+Prompt boundary:
+
+- Prompt source: ackend/app/integrations/ai/prompts/vibe.py
+- Prompt version: 1
+- System-prompt constant: VIBE_SYSTEM_PROMPT
+- Builder: uild_vibe_messages
+- Builder input: GenerateVibeRequest
+- Builder output: list[ChatMessage]
+- Message count: 2
+- Roles: system, user
+- Missing-context representation: <none>
+- Context treated as untrusted: Yes
+- Prompt-injection boundary: Yes
+- JSON-only instruction: Yes
+- Exact output shape included: Yes
+- Provider-neutral messages: Yes
+- Deterministic construction: Yes
+
+Safety:
+
+- Hidden-instruction disclosure requested: No
+- Chain-of-thought requested: No
+- Secret included: No
+- API key included: No
+- Unsafe recommendation guard: Yes
+- Self-harm encouragement prohibited: Yes
+- Dangerous instructions prohibited: Yes
+- Explicit sexual content prohibited: Yes
+- Professional medical/legal/financial claims restricted: Yes
+
+Current integration status:
+
+- Groq client construction: No
+- Groq request: No
+- Model invocation: No
+- AI-response parsing: No
+- Recommendation generation: No
+- Vibe-service integration: No
+- Route integration: No
+- Product route: Still standard 501
+- Health behavior: Unchanged
+- Frontend behavior: Unchanged
+
+Verification:
+
+- Internal-contract tests: Success
+- Prompt-builder tests: Success
+- Prompt-injection boundary tests: Success
+- Public-compatibility tests: Success
+- No-client-construction tests: Success
+- Complete backend suite: Success
+- Frontend regression: Pre-existing TS errors as expected, linting ok
+- Backend startup: Success
+- Runtime health: Success
+- Runtime product route: Success
+- Browser-origin CORS: Success
+- Network audit: Success
+- Response-parsing audit: Success
+- Secret audit: Success
+
+Dependencies:
+
+- Package installed: No
+- Package upgraded: No
+- Package removed: No
+- Dependency file modified: No
+- Lockfile modified: No
+
+Known limitation:
+
+- The prompt and structured AI-output contract exist, but no model request, AI-response parsing, recommendation generation, or Vibe-service integration is implemented.
+- Prompt-injection tests verify message-boundary protections only; they do not prove complete resistance to all prompt-injection attacks.
+
+## Phase 5, Step 5.13 — Mocked Groq Completion and Structured-Response Parser Boundary
+
+Status: Completed
+
+Groq SDK inspection:
+
+- SDK version: 1.5.0
+- Async client type: AsyncGroq
+- Completion method: client.chat.completions.create
+- Message input: list[dict] (roles and content)
+- JSON response mode: supported and used
+- Timeout argument: 	imeout keyword argument
+- Output-token argument: max_tokens keyword argument
+- Response content path: 
+esponse.choices[0].message.content
+- Provider exception types: groq.GroqError
+
+Completion boundary:
+
+- Source: ackend/app/integrations/ai/groq_completion.py
+- Function: 
+equest_structured_vibe_completion
+- Async: Yes
+- Client input: AsyncGroq
+- Message input: Sequence[ChatMessage]
+- Model input: str
+- Timeout input: Optional[float]
+- Output-token input: Optional[int]
+- Creates client: No
+- Reads environment: No
+- Builds prompt: No
+- Parses JSON: No
+- SDK calls per invocation: 1
+- Returns: Non-empty raw message content
+- Retry: No
+- Streaming: No
+- Tool calling: No
+- Provider fallback: No
+
+Structured-response parser:
+
+- Source: ackend/app/integrations/ai/parser.py
+- Function: parse_structured_vibe_output
+- Input: str
+- Output: StructuredVibeAIOutput
+- JSON behavior: Strict
+- Empty response: Rejected
+- Invalid JSON: Rejected
+- Prose-wrapped JSON: Rejected
+- Markdown-fenced JSON: Rejected
+- Contract validation: Existing internal model
+- Response repair: No
+- JSON extraction: No
+- Partial result: No
+
+Internal AI errors:
+
+- Source: ackend/app/integrations/ai/exceptions.py
+- Base error: AIExecutionError
+- Completion error: AICompletionError
+- Empty-response error: AIEmptyResponseError
+- Parse error: AIResponseParseError
+- Validation error: AIResponseValidationError
+- Raw provider output exposed: No
+- Prompt exposed: No
+- User context exposed: No
+- API key exposed: No
+- HTTP coupling: No
+
+Current integration status:
+
+- Live Groq request: No
+- Real API key used: No
+- Vibe-service integration: No
+- Route integration: No
+- Frontend integration: No
+- Recommendation generation: No
+- Product route: Still standard 501
+- Health behavior: Unchanged
+- Frontend behavior: Unchanged
+
+Verification:
+
+- Completion-success tests: Passed
+- Empty-response tests: Passed
+- Provider-exception tests: Passed
+- Parser-success tests: Passed
+- Invalid-JSON tests: Passed
+- Contract-validation tests: Passed
+- Isolated mocked boundary test: Passed
+- Existing prompt tests: Passed
+- Existing client tests: Passed
+- Complete backend suite: Passed
+- Frontend regression: Expected TS errors, lint OK
+- Backend startup: Passed
+- Runtime health: Passed
+- Runtime product route: Passed
+- Browser-origin CORS: Passed
+- Network audit: Passed
+- Retry/repair audit: Passed
+- Secret/output-leakage audit: Passed
+
+Dependencies:
+
+- Package installed: No
+- Package upgraded: No
+- Package removed: No
+- Dependency file modified: No
+- Lockfile modified: No
+
+Known limitation:
+
+- Completion execution is verified only with mocks/fakes.
+- No live provider request has been made.
+- The completion and parser boundaries remain disconnected from the Vibe-generation service and public route.
+- Invalid provider output fails strictly; no repair, extraction, retry, or partial result is implemented.
+
+## Phase 5, Step 5.14 — Integrate AI Generation into the Vibe Service
+
+Status: Completed
+
+The Vibe generation service now strictly integrates the existing isolated AI boundaries. The route is still completely untouched.
+
+Integration constraints preserved:
+- Existing `GenerateVibeRequest` input used.
+- Existing `GeneratedVibeData` output contract used.
+- Typed AI settings utilized natively.
+- Prompt builder called appropriately.
+- Groq client instantiated lazily and securely inside the service flow using `create_groq_client`.
+- Async structured completion correctly processed.
+- Strict parser invoked properly.
+- All errors gracefully mapped and safe.
+
+Pure mapping:
+- A new pure mapper function `map_ai_output_to_vibe_data` successfully transitions the internal `StructuredVibeAIOutput` object into the public `GeneratedVibeData` schema.
+
+Verification:
+- The `generate_with_ai` service method is fully unit tested using mocked endpoints.
+- No live Groq API calls were made during the test.
+- The standard `generate` method, which is invoked by the `POST /api/v1/vibes/generate` route, still correctly raises `VibeGenerationNotImplementedError()` producing a `501 Not Implemented` response.
+- `GET /health` continues to return a healthy check.
+
+## Phase 5, Step 5.15 — Connect the Vibe API Route to the AI Service
+
+Status: Completed
+
+The Vibe API route (`POST /api/v1/vibes/generate`) has been connected to the new `generate_with_ai` service method.
+
+API Integration details:
+- Validated request passes through directly to the service layer.
+- Existing standard API models (`SuccessResponse`, `APIErrorResponse`) remain the interface layer.
+- New exception handlers were introduced in `app/core/exceptions.py` to map internal AI execution errors safely to API errors:
+  - `AIClientConfigurationError` → `503 Service Unavailable` (`AI_UNAVAILABLE`)
+  - `AIExecutionError` (and subclasses) → `502 Bad Gateway` (`AI_GENERATION_FAILED`)
+- Standard error envelope correctly wraps all service errors, stripping internal stack traces, API keys, or raw provider outputs.
+- Focused mocked route tests verify these responses seamlessly. 
+
+The route still requires AI features to be manually enabled and API keys properly provisioned before it executes live requests.

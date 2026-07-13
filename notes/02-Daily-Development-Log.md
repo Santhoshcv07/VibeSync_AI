@@ -2705,3 +2705,160 @@ Phase 4, Step 4.15
 - **Remaining limitations:** No actual generative AI flow implemented yet
 - **Git commit:** Not committed yet
 - **Next step:** Phase 5, Step 5.12
+
+## 2026-07-12: Phase 5, Step 5.12
+
+**Goal:** Create a deterministic, typed, testable prompt-construction boundary and an internal structured AI-output contract for future Groq generation without making any AI request or connecting the prompt to the current Vibe-generation service.
+
+**Git State:**
+- Branch: main
+- Initial state: Clean tree, some untracked files
+- Final state: Modified docs, added AI prompt and contract files. Not committed yet.
+
+**Architecture Decisions & Contracts:**
+- Internal-contract architecture decision: Smallest design possible, provider-neutral, placed in ackend/app/integrations/ai/contracts.py.
+- Root model: StructuredVibeAIOutput
+- Nested models: MusicAIRecommendation, MovieAIRecommendation, YouTubeAIRecommendation, PinterestAIRecommendation, BookAIRecommendation
+- Required categories: music, movie, youtube, pinterest, book. Exactly 1 per category.
+- Fields: 	itle, creator, description, ormat, 	ags, duration. Extraneous fields rejected by default in Pydantic. Empty strings rejected via validators.
+- Public-compatibility result: Verified compatibility with the GeneratedVibeData schema via test suite.
+- Production-mapper status: Not added; test-only compatibility construction used for validation.
+
+**Prompt Boundary:**
+- Prompt source: ackend/app/integrations/ai/prompts/vibe.py
+- Prompt version: 1
+- System-prompt constant: VIBE_SYSTEM_PROMPT
+- Prompt builder: uild_vibe_messages
+- Message type: ChatMessage
+- Message count: 2 (system, user)
+- Missing-context representation: <none>
+- Context-isolation behavior: User context wrapped in <context> tags.
+- Prompt-injection boundary: Untrusted marker applied. Tested with boundaries.
+- JSON-only behavior: Explicit instruction without markdown fences.
+- Content-quality rules: Diverse recommendations, valid output.
+- Safety rules: Unsafe, explicit, self-harm, or dangerous instructions prohibited. Professional advice prohibited.
+- Prompt determinism: Passed verification. No network request, API key or model reference involved.
+
+**Verification Results:**
+- Prompt-builder-test result: Passed
+- Prompt-injection-boundary-test result: Passed
+- Internal-contract-test result: Passed
+- Public-compatibility-test result: Passed
+- No-client-construction-test result: Passed
+- Groq-client construction result: 0
+- AI-request result: None
+- AI-response-parsing result: None
+- Recommendation-generation result: None
+- Vibe-service integration result: None
+- Product-route regression result: Passed (501 Not Implemented)
+- Health-regression result: Passed
+- Network audit: Passed
+- Response-parsing audit: Passed
+- Recommendation audit: Passed
+- External-provider audit: Passed
+- Database/auth/frontend-product audit: Passed
+- Analytics/notification/upload/payment audit: Passed
+- Dependency-integrity result: Passed (No changes)
+- Syntax/compile result: Passed
+- Complete backend-test result: Passed (60 tests)
+- Frontend lint result: Passed
+- Frontend type-check result: Expected pre-existing errors
+- Frontend-test result: Not configured
+- Frontend-build result: Blocked by pre-existing type errors
+- Backend-startup result: Success
+- Runtime-health result: Success
+- Runtime-product-route result: Success
+- Browser-origin CORS result: Success
+- Generated-file result: None exposed
+- Secret-audit result: Clear
+
+**Files:**
+- Created: ackend/app/integrations/ai/contracts.py, ackend/app/integrations/ai/prompts/vibe.py, ackend/app/integrations/ai/prompts/__init__.py, ackend/tests/test_ai_contracts.py, ackend/tests/test_vibe_prompt.py
+- Modified: docs/backend-architecture.md, docs/frontend-architecture.md, README.md, 
+otes/01-Phase-Tracker.md, 
+otes/00-Project-Home.md
+- Actual issues: Initial attempt to curl JSON body failed on Windows shell. Resolved by using Python urllib for testing HTTP POST endpoint locally.
+- Next step: Phase 5, Step 5.13
+
+## 2026-07-12: Phase 5, Step 5.13
+
+**Goal:** Create one isolated, typed, asynchronous Groq completion boundary and one strict structured-response parser that can convert mocked provider output into the existing internal structured Vibe AI-output contract.
+
+**Git State:**
+- Branch: main
+- Initial state: Clean tree (aside from untracked modifications from previous step), some untracked files
+- Final state: Modified docs, added AI completion and parser files, test files. Not committed yet.
+
+**Groq SDK Verification:**
+- SDK version: `1.5.0`
+- Async client type: `AsyncGroq`
+- Completion method: `client.chat.completions.create`
+- Message input shape: `list[dict]`
+- JSON-response-mode result: `response_format={'type': 'json_object'}`
+- Timeout behavior: `timeout`
+- Output-token behavior: `max_tokens`
+- Response-content path: `response.choices[0].message.content`
+- Provider exception types: `groq.GroqError`
+
+**Boundaries & Architecture:**
+- Existing settings/client/prompt/message/contract reuse: Yes, all reused.
+- Completion architecture decision: `backend/app/integrations/ai/groq_completion.py` (isolated function `request_structured_vibe_completion`)
+- Completion input/output types: `client`, `messages`, `model`, `timeout`, `max_output_tokens` -> `str`
+- Client-construction behavior: Passed in, does not create a new one.
+- Environment-read behavior: None.
+- Message-conversion behavior: Maps ChatMessage to dict perfectly.
+- Model behavior: Used exactly as passed.
+- JSON-mode behavior: Used explicitly.
+- SDK-call count: Exactly 1.
+- Retry/streaming/tool/fallback behavior: None.
+- Parser source/function: `backend/app/integrations/ai/parser.py` (`parse_structured_vibe_output`)
+- Parser input/output: `str` -> `StructuredVibeAIOutput`
+- Empty-response behavior: Handled via `AIEmptyResponseError`.
+- Invalid-JSON behavior: Strict decode, fails with `AIResponseParseError`.
+- Prose-wrapped JSON behavior: Strict decode failure.
+- Markdown-fenced JSON behavior: Strict decode failure.
+- Contract-validation behavior: Handled via `StructuredVibeAIOutput.model_validate`, fails with `AIResponseValidationError`.
+- Repair/extraction/partial-result behavior: None.
+- Internal error source/types/codes: `backend/app/integrations/ai/exceptions.py`. Typed classes inheriting from `AIExecutionError`.
+- Raw-output/prompt/context/API-key exposure result: Safely wrapped, no leakage.
+
+**Verification Results:**
+- Completion-success-test result: Passed
+- Empty-response-test result: Passed
+- Provider-exception-test result: Passed
+- Parser-success-test result: Passed
+- Invalid-JSON-test result: Passed
+- Contract-validation-test result: Passed
+- Isolated-mocked-boundary-test result: Passed
+- Existing-prompt-test result: Passed
+- Existing-client-test result: Passed
+- Vibe-service integration result: Not integrated
+- Route integration result: Not integrated
+- Frontend integration result: Not integrated
+- Live-network result: No live requests made
+- Recommendation-generation result: Not connected
+- Product-route regression result: Passed (`501`)
+- Health-regression result: Passed
+- Network audit: Clear
+- Retry/repair audit: Clear
+- Dependency-integrity result: Clear
+- Syntax/compile result: Passed
+- Complete backend-test result: Passed (67 tests)
+- Frontend lint result: Passed
+- Frontend type-check result: Failed (expected TS errors from previous steps)
+- Frontend-build result: Failed (expected due to TS errors)
+- Backend-startup result: Success
+- Runtime-health result: Success
+- Runtime-product-route result: Success
+- Browser-origin CORS result: Success
+- Generated-file result: None exposed
+- Secret/output-leakage audit result: Clear
+
+**Files:**
+- Created: `backend/app/integrations/ai/exceptions.py`, `backend/app/integrations/ai/groq_completion.py`, `backend/app/integrations/ai/parser.py`, `backend/tests/test_ai_completion.py`, `backend/tests/test_ai_parser.py`
+- Modified: `docs/backend-architecture.md`, `docs/frontend-architecture.md`, `README.md`, `notes/01-Phase-Tracker.md`, `notes/00-Project-Home.md`
+- Actual issues: Initial mock configuration for `test_ai_parser.py` had an incorrect `MagicMock().choices` representation causing length check failure.
+- Actual fixes: Replaced with proper `[mock_choice]` array configuration.
+- Remaining limitations: Only mocks/fakes used. Still disconnected from public routes.
+- Git commit: `Not committed yet`
+- Next step: `Phase 5, Step 5.14`

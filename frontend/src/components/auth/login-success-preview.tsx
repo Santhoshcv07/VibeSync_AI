@@ -40,11 +40,11 @@ export function LoginSuccessPreview({ onReset }: LoginSuccessPreviewProps) {
       </p>
 
       <div className="flex flex-col gap-3 w-full">
-        <Button asChild variant="primary" fullWidth className="font-semibold">
-<Link href="/dashboard">
+        <Link href="/dashboard" className="w-full">
+          <Button variant="primary" fullWidth className="font-semibold">
             Preview Dashboard
-          </Link>
-</Button>
+          </Button>
+        </Link>
         <p className="text-caption text-foreground-subtle -mt-1 mb-2">
           Opens the current dashboard prototype without authentication.
         </p>

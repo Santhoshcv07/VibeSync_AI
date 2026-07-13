@@ -35,29 +35,38 @@ export function MarketingHeader() {
               {marketingNavigation.map((item) => {
                 const isActive = pathname === item.href;
                 return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    aria-current={isActive ? "page" : undefined}
-                    className={cn(
-                      "text-body-sm font-medium transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--focus-ring)] rounded-sm",
-                      isActive ? "text-foreground" : "text-foreground-muted"
+                  <div key={item.href} className="relative flex flex-col justify-center">
+                    <Link
+                      href={item.href}
+                      aria-current={isActive ? "page" : undefined}
+                      className={cn(
+                        "text-sm font-medium transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--focus-ring)] rounded-sm",
+                        isActive ? "text-[#d946ef]" : "text-white/70"
+                      )}
+                    >
+                      {item.label}
+                    </Link>
+                    {isActive && (
+                      <div className="absolute -bottom-1.5 left-0 right-0 h-[2px] bg-gradient-to-r from-[#d946ef] to-[#9d4edd] rounded-full" />
                     )}
-                  >
-                    {item.label}
-                  </Link>
+                  </div>
                 );
               })}
             </div>
 
             {/* Desktop Actions */}
             <div className="hidden md:flex md:items-center md:gap-x-4">
-              <Button asChild variant="ghost" size="sm">
-                <Link href="/login">Sign In</Link>
-              </Button>
-              <Button asChild variant="primary" size="sm">
-                <Link href="/signup">Get Started</Link>
-              </Button>
+              <button type="button" className="text-white/70 hover:text-white p-2 rounded-full transition-colors" aria-label="Toggle dark mode">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+                </svg>
+              </button>
+              <Link href="/login">
+                <Button variant="outline" size="sm" className="bg-transparent border-white/20 text-white hover:bg-white/10 hover:border-white/30 rounded-xl px-5 h-9 font-medium">Sign In</Button>
+              </Link>
+              <Link href="/signup">
+                <Button size="sm" className="bg-gradient-to-r from-[#9d4edd] via-[#d946ef] to-[#ff5e7e] text-white border-0 hover:opacity-90 rounded-xl px-5 h-9 font-medium shadow-none">Get Started Free</Button>
+              </Link>
             </div>
 
             {/* Mobile Menu Trigger */}

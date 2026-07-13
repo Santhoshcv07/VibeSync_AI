@@ -3,26 +3,23 @@ import Link from "next/link";
 
 export default function LoginPage() {
   return (
-    <div className="w-full flex flex-col max-w-md mx-auto animate-fade-in">
-      <div className="mb-8 w-full text-center lg:text-left">
-        <span className="inline-block text-xs font-bold tracking-widest text-[var(--primary)] uppercase mb-3">
-          WELCOME BACK
-        </span>
-        <h1 className="text-heading-2 font-display font-semibold text-foreground mb-3">
-          Sign in to VibeSync
+    <div className="w-full flex flex-col mx-auto animate-fade-in">
+      <div className="mb-4 w-full text-center">
+        <h1 className="text-2xl font-bold text-white mb-1">
+          Welcome back ✨
         </h1>
-        <p className="text-body text-foreground-muted">
-          Return to your saved Vibes, entertainment history, and personalized mood experiences.
+        <p className="text-sm text-white/70">
+          Continue building moments around your mood.
         </p>
       </div>
 
       <LoginForm />
 
-      <div className="mt-8 text-body-sm text-foreground-subtle text-center w-full">
-        New to VibeSync?{" "}
+      <div className="mt-5 text-sm text-white/60 text-center w-full">
+        New to VibeSync AI?{" "}
         <Link 
           href="/signup" 
-          className="text-[var(--primary)] font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--focus-ring)] rounded-sm"
+          className="text-white hover:text-white/80 font-medium hover:underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#8338ec] rounded-sm"
         >
           Create an account
         </Link>

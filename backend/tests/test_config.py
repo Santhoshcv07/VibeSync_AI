@@ -7,21 +7,21 @@ from app.core.config import Settings
 class TestAIConfiguration(unittest.TestCase):
     def test_default_config(self):
         # By default, AI should be disabled, no API key needed
-        settings = Settings()
+        settings = Settings(_env_file=None)
         self.assertFalse(settings.AI_ENABLED)
         self.assertEqual(settings.AI_PROVIDER, "groq")
         self.assertIsNone(settings.GROQ_API_KEY)
 
     @patch.dict(os.environ, {"AI_ENABLED": "false", "GROQ_API_KEY": ""}, clear=True)
     def test_ai_disabled_missing_key(self):
-        settings = Settings()
+        settings = Settings(_env_file=None)
         self.assertFalse(settings.AI_ENABLED)
         self.assertIsNone(settings.GROQ_API_KEY)
 
     @patch.dict(os.environ, {"AI_ENABLED": "true"}, clear=True)
     def test_ai_enabled_missing_key_fails(self):
         with self.assertRaises(ValidationError) as context:
-            Settings()
+            Settings(_env_file=None)
         
         err_msg = str(context.exception)
         self.assertIn("GROQ_API_KEY must be provided when AI_ENABLED is true", err_msg)

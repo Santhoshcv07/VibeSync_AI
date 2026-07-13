@@ -298,3 +298,55 @@ Not implemented yet:
 - Frontend product integration
 
 The Vibe-generation route still intentionally returns 501 Not Implemented.
+
+## Vibe Prompt and Structured AI Output
+
+Phase 5, Step 5.12 completed.
+
+Current backend AI foundation includes:
+
+- Typed AI configuration
+- Isolated Groq client boundary
+- Versioned Vibe system prompt
+- Typed provider-neutral chat messages
+- Deterministic prompt construction
+- Untrusted user-context boundary
+- Internal structured AI-output contract
+- Public-contract compatibility tests
+
+Not implemented yet:
+
+- Groq completion request
+- AI-response parsing
+- Recommendation generation
+- Vibe-service integration
+- Frontend product integration
+
+The Vibe-generation route still intentionally returns 501 Not Implemented.
+
+## Mocked Groq Completion and Structured Parsing
+
+Phase 5, Step 5.13 completed.
+
+Current backend AI foundation includes:
+
+- Typed AI configuration
+- Isolated Groq client boundary
+- Versioned Vibe prompt
+- Provider-neutral chat messages
+- Internal structured AI-output contract
+- Isolated asynchronous Groq completion boundary
+- Strict JSON response parser
+- Safe internal AI errors
+- Mocked completion tests
+- Strict contract-validation tests
+
+Not implemented yet:
+
+- Live Groq verification
+- Vibe-service integration
+- Public recommendation generation
+- Frontend product integration
+- Retry or response repair
+
+The Vibe-generation route still intentionally returns 501 Not Implemented.

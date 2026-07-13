@@ -29,6 +29,13 @@ export interface VibeRecommendation {
   actionLabel: string;
   artworkVariant: VibeArtworkVariant;
   tags: string[];
+  imageUrl?: string;
+  thumbnailUrl?: string;
+  destinationUrl?: string;
+  platform?: string;
+  matchScore?: number;
+  year?: string | number;
+  metadata?: Record<string, unknown>;
 }
 
 export interface VibeMediaSectionData {

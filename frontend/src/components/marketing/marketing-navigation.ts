@@ -5,11 +5,27 @@ export interface MarketingNavigationItem {
 
 export const marketingNavigation: readonly MarketingNavigationItem[] = [
   {
-    label: "How It Works",
-    href: "/how-it-works",
+    label: "Home",
+    href: "/",
   },
   {
-    label: "About",
-    href: "/about",
+    label: "How It Works",
+    href: "#how-it-works",
+  },
+  {
+    label: "Features",
+    href: "#features",
+  },
+  {
+    label: "Vibes",
+    href: "/generate",
+  },
+  {
+    label: "Pricing",
+    href: "#pricing",
+  },
+  {
+    label: "Blog",
+    href: "#blog",
   },
 ];

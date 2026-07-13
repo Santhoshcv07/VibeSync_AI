@@ -1,4 +1,6 @@
 export { LandingHero } from "./landing-hero";
+export { PlatformRow } from "./platform-row";
+export { FeatureStrip } from "./feature-strip";
 export { EntertainmentCollage } from "./entertainment-collage";
 export { EntertainmentCategoryStrip } from "./entertainment-category-strip";
 export { HowVibeSyncWorks } from "./how-vibesync-works";

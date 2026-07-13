@@ -5,6 +5,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.responses import JSONResponse
 import traceback
 from app.schemas.core import APIErrorResponse, APIError, ErrorDetail
+from app.integrations.ai.exceptions import AIExecutionError
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +24,29 @@ def setup_exception_handlers(app: FastAPI):
         )
         return JSONResponse(
             status_code=501,
+            content=APIErrorResponse(error=error).model_dump(exclude_none=True)
+        )
+
+    @app.exception_handler(AIClientConfigurationError)
+    async def ai_config_error_handler(request: Request, exc: AIClientConfigurationError):
+        error = APIError(
+            code="AI_UNAVAILABLE",
+            message="AI generation is currently disabled or unavailable."
+        )
+        return JSONResponse(
+            status_code=503,
+            content=APIErrorResponse(error=error).model_dump(exclude_none=True)
+        )
+
+    @app.exception_handler(AIExecutionError)
+    async def ai_execution_error_handler(request: Request, exc: AIExecutionError):
+        logger.error(f"AI Execution Error: {exc.__class__.__name__}")
+        error = APIError(
+            code="AI_GENERATION_FAILED",
+            message="The AI provider failed to process the request."
+        )
+        return JSONResponse(
+            status_code=502,
             content=APIErrorResponse(error=error).model_dump(exclude_none=True)
         )
 

@@ -1,101 +1,128 @@
 import unittest
-from unittest.mock import AsyncMock, patch
-from fastapi.testclient import TestClient
+from unittest.mock import AsyncMock, patch, MagicMock
 
-from app.main import app
 from app.services.vibe_generation import VibeGenerationService
 from app.schemas.vibe import GenerateVibeRequest, VibeMood, GeneratedVibeData
-from app.core.exceptions import VibeGenerationNotImplementedError
-from app.api.endpoints.vibes import get_vibe_generation_service
+from app.core.exceptions import VibeGenerationNotImplementedError, AIClientConfigurationError
+from app.integrations.ai.exceptions import AICompletionError, AIEmptyResponseError, AIResponseParseError, AIResponseValidationError
+from app.integrations.ai.contracts import StructuredVibeAIOutput
 
 class TestVibeGenerationService(unittest.IsolatedAsyncioTestCase):
-    async def test_service_raises_not_implemented(self):
-        service = VibeGenerationService()
-        req = GenerateVibeRequest(mood=VibeMood.chill)
-        
-        with self.assertRaises(VibeGenerationNotImplementedError):
-            await service.generate(req)
-
-class TestVibeRouteDelegation(unittest.TestCase):
     def setUp(self):
-        self.mock_service = AsyncMock(spec=VibeGenerationService)
-        # Override the dependency to return our mock service
-        app.dependency_overrides[get_vibe_generation_service] = lambda: self.mock_service
-        self.client = TestClient(app)
-
-    def tearDown(self):
-        app.dependency_overrides.clear()
-
-    def test_valid_request_calls_service_once(self):
-        # Configure mock to raise the exception as the real service would
-        self.mock_service.generate.side_effect = VibeGenerationNotImplementedError()
+        self.service = VibeGenerationService()
+        self.request = GenerateVibeRequest(mood=VibeMood.chill, context="Test context")
         
-        response = self.client.post("/api/v1/vibes/generate", json={"mood": "chill", "context": "relaxing"})
+        self.valid_raw_content = """
+        {
+            "music": {"title": "T", "creator": "C", "description": "D", "format": "F", "tags": ["T"]},
+            "movie": {"title": "T", "creator": "C", "description": "D", "format": "F", "tags": ["T"]},
+            "youtube": {"title": "T", "creator": "C", "description": "D", "format": "F", "tags": ["T"]},
+            "pinterest": {"title": "T", "creator": "C", "description": "D", "format": "F", "tags": ["T"]},
+            "book": {"title": "T", "creator": "C", "description": "D", "format": "F", "tags": ["T"]}
+        }
+        """
+
+    @patch("app.services.vibe_generation.settings")
+    async def test_ai_disabled_behavior(self, mock_settings):
+        # AI-disabled behavior
+        mock_settings.AI_ENABLED = False
+        with self.assertRaises(AIClientConfigurationError):
+            await self.service.generate(self.request)
+
+    @patch("app.services.vibe_generation.settings")
+    @patch("app.services.vibe_generation.build_vibe_messages")
+    @patch("app.services.vibe_generation.create_groq_client")
+    @patch("app.services.vibe_generation.request_structured_vibe_completion")
+    @patch("app.services.vibe_generation.parse_structured_vibe_output")
+    async def test_successful_end_to_end_service_generation(
+        self, mock_parse, mock_completion, mock_get_client, mock_build, mock_settings
+    ):
+        mock_settings.AI_ENABLED = True
+        mock_settings.GROQ_MODEL = "test-model"
         
-        # Verify response
-        self.assertEqual(response.status_code, 501)
-        data = response.json()
-        self.assertEqual(data["error"]["code"], "NOT_IMPLEMENTED")
-        self.assertEqual(data["error"]["message"], "Vibe generation is not available yet.")
-        self.assertEqual(data["error"]["details"], [])
-        self.assertIsNone(data["error"].get("request_id"))
+        mock_messages = [MagicMock()]
+        mock_build.return_value = mock_messages
         
-        # Verify service was called exactly once with typed request
-        self.mock_service.generate.assert_called_once()
-        req_arg = self.mock_service.generate.call_args[0][0]
-        self.assertIsInstance(req_arg, GenerateVibeRequest)
-        self.assertEqual(req_arg.mood, VibeMood.chill)
-        self.assertEqual(req_arg.context, "relaxing")
-
-    def test_invalid_request_never_calls_service(self):
-        # Missing mood
-        response = self.client.post("/api/v1/vibes/generate", json={})
-        self.assertEqual(response.status_code, 422)
-        self.mock_service.generate.assert_not_called()
-
-        # Unsupported mood
-        response = self.client.post("/api/v1/vibes/generate", json={"mood": "angry"})
-        self.assertEqual(response.status_code, 422)
-        self.mock_service.generate.assert_not_called()
-
-        # Invalid context type
-        response = self.client.post("/api/v1/vibes/generate", json={"mood": "chill", "context": 123})
-        self.assertEqual(response.status_code, 422)
-        self.mock_service.generate.assert_not_called()
-
-    def test_future_success_delegation(self):
-        # Synthetic success data
-        synthetic_data = GeneratedVibeData(
-            id="vibe-1",
-            title="Golden Energy",
-            mood="happy",
-            duration="15-min",
-            description="desc",
-            intention="intent",
-            journeySummary="summary",
-            sections=[]
+        mock_client = AsyncMock()
+        mock_get_client.return_value = mock_client
+        
+        mock_completion.return_value = "mocked_raw"
+        
+        # We need a real valid parse output to test mapper
+        import json
+        from app.integrations.ai.contracts import StructuredVibeAIOutput
+        parsed_output = StructuredVibeAIOutput.model_validate(json.loads(self.valid_raw_content))
+        mock_parse.return_value = parsed_output
+        
+        result = await self.service.generate(self.request)
+        
+        # Verify calls
+        mock_build.assert_called_once_with(self.request)
+        mock_get_client.assert_called_once()
+        mock_completion.assert_called_once_with(
+            client=mock_client,
+            messages=mock_messages,
+            model="test-model"
         )
-        self.mock_service.generate.return_value = synthetic_data
+        mock_parse.assert_called_once_with("mocked_raw")
         
-        response = self.client.post("/api/v1/vibes/generate", json={"mood": "happy"})
-        
-        # Verify the success envelope is used
-        self.assertEqual(response.status_code, 200)
-        data = response.json()
-        self.assertIn("data", data)
-        self.assertEqual(data["data"]["title"], "Golden Energy")
-        self.assertEqual(data["data"]["mood"], "happy")
-        
-        self.mock_service.generate.assert_called_once()
+        # Verify mapper output
+        self.assertIsInstance(result, GeneratedVibeData)
+        self.assertEqual(result.mood, "chill")
+        self.assertEqual(len(result.sections), 5)
+        self.assertEqual(result.sections[0].items[0].title, "T")
 
-class TestExceptionHandlerSpecificity(unittest.TestCase):
-    def setUp(self):
-        self.client = TestClient(app)
+    @patch("app.services.vibe_generation.settings")
+    @patch("app.services.vibe_generation.create_groq_client")
+    async def test_client_configuration_failure(self, mock_get_client, mock_settings):
+        mock_settings.AI_ENABLED = True
+        mock_get_client.side_effect = AIClientConfigurationError("Invalid key")
+        
+        with self.assertRaises(AIClientConfigurationError) as ctx:
+            await self.service.generate(self.request)
+            
+        self.assertNotIn("API_KEY", str(ctx.exception))
 
-    def test_generic_exception_not_501(self):
-        # We need a route that raises a generic Exception to verify it becomes 500, not 501.
-        # Since we don't have one easily accessible, we can temporarily add one or just rely on 404 behavior.
-        response = self.client.get("/non-existent-route")
-        self.assertEqual(response.status_code, 404)
-        data = response.json()
-        self.assertEqual(data["error"]["code"], "NOT_FOUND")
+    @patch("app.services.vibe_generation.settings")
+    @patch("app.services.vibe_generation.create_groq_client")
+    @patch("app.services.vibe_generation.request_structured_vibe_completion")
+    async def test_completion_failure(self, mock_completion, mock_get_client, mock_settings):
+        mock_settings.AI_ENABLED = True
+        mock_completion.side_effect = AICompletionError("Completion failed")
+        
+        with self.assertRaises(AICompletionError) as ctx:
+            await self.service.generate(self.request)
+
+    @patch("app.services.vibe_generation.settings")
+    @patch("app.services.vibe_generation.create_groq_client")
+    @patch("app.services.vibe_generation.request_structured_vibe_completion")
+    async def test_empty_provider_response(self, mock_completion, mock_get_client, mock_settings):
+        mock_settings.AI_ENABLED = True
+        mock_completion.side_effect = AIEmptyResponseError("Empty")
+        
+        with self.assertRaises(AIEmptyResponseError):
+            await self.service.generate(self.request)
+
+    @patch("app.services.vibe_generation.settings")
+    @patch("app.services.vibe_generation.create_groq_client")
+    @patch("app.services.vibe_generation.request_structured_vibe_completion")
+    @patch("app.services.vibe_generation.parse_structured_vibe_output")
+    async def test_invalid_json(self, mock_parse, mock_completion, mock_get_client, mock_settings):
+        mock_settings.AI_ENABLED = True
+        mock_completion.return_value = "raw"
+        mock_parse.side_effect = AIResponseParseError("Bad JSON")
+        
+        with self.assertRaises(AIResponseParseError):
+            await self.service.generate(self.request)
+
+    @patch("app.services.vibe_generation.settings")
+    @patch("app.services.vibe_generation.create_groq_client")
+    @patch("app.services.vibe_generation.request_structured_vibe_completion")
+    @patch("app.services.vibe_generation.parse_structured_vibe_output")
+    async def test_contract_validation_failure(self, mock_parse, mock_completion, mock_get_client, mock_settings):
+        mock_settings.AI_ENABLED = True
+        mock_completion.return_value = "raw"
+        mock_parse.side_effect = AIResponseValidationError("Missing field")
+        
+        with self.assertRaises(AIResponseValidationError):
+            await self.service.generate(self.request)

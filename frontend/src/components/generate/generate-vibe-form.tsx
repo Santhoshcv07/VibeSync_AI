@@ -8,17 +8,18 @@ import { MoodSelector } from "./mood-selector";
 import { TimeSelector } from "./time-selector";
 import { VibeIntentionField } from "./vibe-intention-field";
 import { VibeSelectionSummary } from "./vibe-selection-summary";
-import { GenerateVibeSuccessPreview } from "./generate-vibe-success-preview";
 import { MoodThemeScope } from "@/components/theme/mood-theme-scope";
 import { type MoodTheme } from "@/lib/mood-theme";
+import { generateVibe } from "@/lib/api/vibes";
+import { ApiError } from "@/lib/api/errors";
+import { VibeExperienceClient } from "@/components/vibe/vibe-experience-client";
+import { type VibeExperienceData } from "@/components/vibe/vibe-experience.data";
 import { 
   type GenerateVibeFormValues, 
   type GenerateVibeFormErrors, 
   type GenerateVibeFieldName,
   type VibeMood,
-  type VibeDuration,
-  moodOptions,
-  durationOptions
+  type VibeDuration
 } from "./generate-vibe.types";
 
 export function GenerateVibeForm() {
@@ -34,6 +35,8 @@ export function GenerateVibeForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [showSummaryAlert, setShowSummaryAlert] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [vibeData, setVibeData] = useState<VibeExperienceData | null>(null);
 
   const moodRef = useRef<HTMLInputElement>(null);
   const durationRef = useRef<HTMLInputElement>(null);
@@ -103,8 +106,8 @@ export function GenerateVibeForm() {
     setErrors((prev) => ({ ...prev, intention: validateField("intention", values) }));
   };
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: FormEvent) => {
+    if (e) e.preventDefault();
     if (isSubmitting) return;
 
     const newErrors = validateAll(values);
@@ -128,40 +131,73 @@ export function GenerateVibeForm() {
 
     setShowSummaryAlert(false);
     setIsSubmitting(true);
+    setApiError(null);
 
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      if (!values.mood) return; // Should be caught by validation
+      
+      const response = await generateVibe({
+        mood: values.mood,
+        context: values.intention.trim() || undefined,
+      });
+      
+      setVibeData(response.data);
       setIsSuccess(true);
+      
       setTimeout(() => {
-        successHeadingRef.current?.focus();
+        if (successHeadingRef.current) {
+          successHeadingRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+          successHeadingRef.current.focus({ preventScroll: true });
+        }
       }, 50);
-    }, 750);
+    } catch (err: unknown) {
+      if (err instanceof ApiError) {
+        if (err.code === "VALIDATION_ERROR") {
+          setApiError("Please check your inputs and try again.");
+        } else if (err.code === "AI_UNAVAILABLE") {
+          setApiError("AI generation is temporarily unavailable. Please try again later.");
+        } else if (err.code === "AI_GENERATION_FAILED") {
+          setApiError("The AI provider encountered an error. Please try again.");
+        } else if (err.code === "REQUEST_TIMEOUT") {
+          setApiError("The request timed out. Please try again.");
+        } else if (err.code === "NETWORK_ERROR") {
+          setApiError("Unable to reach the server. Please check your connection.");
+        } else if (err.code === "INVALID_RESPONSE") {
+          setApiError("The server returned an invalid response. Please try again.");
+        } else {
+          setApiError(err.message || "An unexpected error occurred.");
+        }
+      } else {
+        setApiError("An unexpected error occurred. Please try again.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleReset = () => {
     setIsSuccess(false);
+    setVibeData(null);
     setValues({ mood: null, duration: null, intention: "" });
     setTouched({});
     setErrors({});
     setShowSummaryAlert(false);
+    setApiError(null);
     
     setTimeout(() => {
       moodRef.current?.focus();
     }, 50);
   };
 
-  if (isSuccess) {
-    const moodLabel = moodOptions.find(o => o.value === values.mood)?.label || "";
-    const durationLabel = durationOptions.find(o => o.value === values.duration)?.label || "";
-    
+  if (isSuccess && vibeData) {
     return (
-      <div className="w-full outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] rounded-sm" ref={successHeadingRef} tabIndex={-1}>
-        <GenerateVibeSuccessPreview 
-          moodLabel={moodLabel}
-          durationLabel={durationLabel}
-          intention={values.intention.trim()}
-          onReset={handleReset}
-        />
+      <div className="w-full outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] rounded-sm pb-12" ref={successHeadingRef} tabIndex={-1}>
+        <div className="flex items-center max-w-5xl mx-auto px-4 py-6">
+          <Button variant="ghost" size="sm" onClick={handleReset} className="text-foreground-muted hover:text-foreground">
+            &larr; Create Another Vibe
+          </Button>
+        </div>
+        <VibeExperienceClient experience={vibeData} />
       </div>
     );
   }
@@ -169,7 +205,8 @@ export function GenerateVibeForm() {
   const formContent = (
     <div className="w-full relative">
       <div aria-live="polite" className="sr-only">
-        {isSubmitting ? "Preparing your Vibe preview locally." : ""}
+        {isSubmitting ? "Generating your Vibe..." : ""}
+        {apiError ? `Error: ${apiError}` : ""}
       </div>
 
       <form 
@@ -179,7 +216,18 @@ export function GenerateVibeForm() {
         aria-busy={isSubmitting}
       >
         <div className="flex-1 flex flex-col gap-10 min-w-0">
-          {showSummaryAlert && Object.keys(errors).length > 0 && (
+          {apiError && (
+            <Alert variant="danger" title="Generation Failed" className="mb-2">
+              <div className="flex flex-col gap-3 items-start">
+                <p>{apiError}</p>
+                <Button variant="outline" size="sm" onClick={() => handleSubmit()} disabled={isSubmitting}>
+                  Retry Generation
+                </Button>
+              </div>
+            </Alert>
+          )}
+
+          {showSummaryAlert && Object.keys(errors).length > 0 && !apiError && (
             <Alert variant="danger" title="Complete your Vibe" className="mb-2">
               Choose the missing details and try again.
             </Alert>
@@ -226,15 +274,12 @@ export function GenerateVibeForm() {
                 {isSubmitting ? (
                   <>
                     <Spinner size="sm" className="mr-2" />
-                    Preparing local preview…
+                    Generating Vibe…
                   </>
                 ) : (
                   "Generate My Vibe"
                 )}
               </Button>
-              <p className="text-caption text-foreground-subtle text-center">
-                Local prototype only—no AI or provider request will be sent.
-              </p>
             </div>
           </div>
         </div>

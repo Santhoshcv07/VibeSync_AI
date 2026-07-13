@@ -11,7 +11,11 @@ def get_vibe_generation_service() -> VibeGenerationService:
 @router.post(
     "/generate", 
     response_model=SuccessResponse[GeneratedVibeData], 
-    responses={501: {"model": APIErrorResponse}}
+    responses={
+        501: {"model": APIErrorResponse},
+        502: {"model": APIErrorResponse},
+        503: {"model": APIErrorResponse}
+    }
 )
 async def generate_vibe(
     request: GenerateVibeRequest,
