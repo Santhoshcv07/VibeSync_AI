@@ -95,27 +95,30 @@ def map_ai_output_to_vibe_data(request: GenerateVibeRequest, ai_output: Structur
         description="Shorter format content to keep the vibe going.",
         items=[youtube_item]
     )
-
     # Pinterest
-    pinterest_item = PinterestRecommendation(
-        id=str(uuid.uuid4()),
-        title=ai_output.pinterest.title,
-        creator=ai_output.pinterest.creator,
-        description=ai_output.pinterest.description,
-        format=ai_output.pinterest.format,
-        providerLabel="Pinterest",
-        actionLabel="View Moodboard",
-        artworkVariant=VibeArtworkVariant.violet_room,
-        tags=ai_output.pinterest.tags,
-        duration=ai_output.pinterest.duration
-    )
+    pinterest_items = [
+        PinterestRecommendation(
+            id=str(uuid.uuid4()),
+            title=item.title,
+            creator=item.creator,
+            description=item.description,
+            format=item.format,
+            providerLabel="Pinterest",
+            actionLabel="View Moodboard",
+            artworkVariant=VibeArtworkVariant.violet_room,
+            tags=item.tags,
+            duration=item.duration
+        )
+        for item in ai_output.pinterest
+    ]
+
     pinterest_section = VibeMediaSection(
         id=str(uuid.uuid4()),
         category=VibeMediaCategory.visual_inspiration,
         eyebrow="Aesthetics",
         title="Visual Inspiration",
         description="Images and colors to complete the atmosphere.",
-        items=[pinterest_item]
+        items=pinterest_items
     )
 
     # Book
@@ -194,7 +197,7 @@ class VibeGenerationService:
                     elif item.category == VibeMediaCategory.visual_inspiration:
                         enrich_tasks.append(enrich_visual(item))
                     elif item.category == VibeMediaCategory.books:
-                        enrich_tasks.append(enrich_book(item))
+                        pass
                     
         if enrich_tasks:
             await asyncio.gather(*enrich_tasks)

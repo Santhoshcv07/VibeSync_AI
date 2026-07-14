@@ -191,7 +191,7 @@ export function GenerateVibeForm() {
 
   if (isSuccess && vibeData) {
     return (
-      <div className="w-full outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] rounded-sm pb-12" ref={successHeadingRef} tabIndex={-1}>
+      <div className="w-full outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring) rounded-sm pb-12" ref={successHeadingRef} tabIndex={-1}>
         <div className="flex items-center max-w-5xl mx-auto px-4 py-6">
           <Button variant="ghost" size="sm" onClick={handleReset} className="text-foreground-muted hover:text-foreground">
             &larr; Create Another Vibe
@@ -261,7 +261,7 @@ export function GenerateVibeForm() {
           </div>
         </div>
 
-        <div className="lg:w-[400px] shrink-0">
+        <div className="lg:w-100 shrink-0">
           <div className="sticky top-24 flex flex-col gap-6">
             <VibeSelectionSummary 
               mood={values.mood} 

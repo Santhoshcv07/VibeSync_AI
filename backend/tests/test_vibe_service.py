@@ -21,7 +21,14 @@ class TestVibeGenerationService(unittest.IsolatedAsyncioTestCase):
             ],
             "movie": {"title": "T", "creator": "C", "description": "D", "format": "F", "tags": ["T"]},
             "youtube": {"title": "T", "creator": "C", "description": "D", "format": "F", "tags": ["T"]},
-            "pinterest": {"title": "T", "creator": "C", "description": "D", "format": "F", "tags": ["T"]},
+            "pinterest": [
+                {"title": "P1", "creator": "C", "description": "D", "format": "F", "tags": ["T"]},
+                {"title": "P2", "creator": "C", "description": "D", "format": "F", "tags": ["T"]},
+                {"title": "P3", "creator": "C", "description": "D", "format": "F", "tags": ["T"]},
+                {"title": "P4", "creator": "C", "description": "D", "format": "F", "tags": ["T"]},
+                {"title": "P5", "creator": "C", "description": "D", "format": "F", "tags": ["T"]},
+                {"title": "P6", "creator": "C", "description": "D", "format": "F", "tags": ["T"]}
+            ],
             "book": {"title": "T", "creator": "C", "description": "D", "format": "F", "tags": ["T"]}
         }
         """
@@ -78,6 +85,7 @@ class TestVibeGenerationService(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.sections[0].items[0].title, "T1")
         self.assertEqual(result.sections[0].items[1].title, "T2")
         self.assertEqual(result.sections[0].items[2].title, "T3")
+        self.assertEqual(len(result.sections[3].items), 6)
 
     @patch("app.services.vibe_generation.settings")
     @patch("app.services.vibe_generation.create_groq_client")

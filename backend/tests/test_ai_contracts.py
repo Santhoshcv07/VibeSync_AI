@@ -56,13 +56,16 @@ class TestAIContracts(unittest.TestCase):
                 "format": "Video",
                 "tags": ["study", "lofi"]
             },
-            "pinterest": {
-                "title": "Cozy Room",
-                "creator": "Designer",
-                "description": "Inspo",
-                "format": "Board",
-                "tags": ["cozy", "interior"]
-            },
+            "pinterest": [
+                {
+                    "title": f"Cozy Room {i}",
+                    "creator": "Designer",
+                    "description": "Inspo",
+                    "format": "Board",
+                    "tags": ["cozy", "interior"]
+                }
+                for i in range(1, 7)
+            ],
             "book": {
                 "title": "Deep Work",
                 "creator": "Cal Newport",
@@ -78,6 +81,8 @@ class TestAIContracts(unittest.TestCase):
         self.assertEqual(output.music[0].title, "Ambient Sounds")
         self.assertEqual(output.music[1].title, "Chill Beats")
         self.assertEqual(output.music[2].title, "Peaceful Piano")
+        self.assertEqual(len(output.pinterest), 6)
+        self.assertEqual(output.pinterest[0].title, "Cozy Room 1")
         self.assertEqual(output.book.creator, "Cal Newport")
 
     def test_missing_category_rejected(self):
@@ -108,6 +113,26 @@ class TestAIContracts(unittest.TestCase):
             "format": "Track",
             "tags": ["extra"]
         })
+        with self.assertRaises(ValidationError):
+            StructuredVibeAIOutput(**invalid_data)
+
+    def test_pinterest_requires_exactly_6_items(self):
+        invalid_data = self.valid_data.copy()
+        invalid_data["pinterest"] = invalid_data["pinterest"][:5]
+        with self.assertRaises(ValidationError):
+            StructuredVibeAIOutput(**invalid_data)
+
+        invalid_data = self.valid_data.copy()
+        invalid_data["pinterest"] = [
+            *invalid_data["pinterest"],
+            {
+                "title": "Extra Visual",
+                "creator": "Designer",
+                "description": "Extra",
+                "format": "Board",
+                "tags": ["extra"]
+            }
+        ]
         with self.assertRaises(ValidationError):
             StructuredVibeAIOutput(**invalid_data)
 
@@ -156,17 +181,20 @@ class TestAIContracts(unittest.TestCase):
             tags=ai_output.youtube.tags
         )
         
-        pinterest_rec = PinterestRecommendation(
-            id="test-pin-id",
-            title=ai_output.pinterest.title,
-            creator=ai_output.pinterest.creator,
-            description=ai_output.pinterest.description,
-            format=ai_output.pinterest.format,
-            providerLabel="Pinterest",
-            actionLabel="Explore",
-            artworkVariant=VibeArtworkVariant.paper_moon,
-            tags=ai_output.pinterest.tags
-        )
+        pinterest_recs = [
+            PinterestRecommendation(
+                id=f"test-pin-id-{i}",
+                title=item.title,
+                creator=item.creator,
+                description=item.description,
+                format=item.format,
+                providerLabel="Pinterest",
+                actionLabel="Explore",
+                artworkVariant=VibeArtworkVariant.paper_moon,
+                tags=item.tags
+            )
+            for i, item in enumerate(ai_output.pinterest)
+        ]
         
         book_rec = BookRecommendation(
             id="test-book-id",
@@ -219,7 +247,7 @@ class TestAIContracts(unittest.TestCase):
                     eyebrow="Look",
                     title="Images",
                     description="Inspo",
-                    items=[pinterest_rec]
+                    items=pinterest_recs
                 ),
                 VibeMediaSection(
                     id="sec-book",
@@ -239,5 +267,6 @@ class TestAIContracts(unittest.TestCase):
         self.assertEqual(vibe_data.sections[0].items[2].title, "Peaceful Piano")
         self.assertEqual(vibe_data.sections[1].items[0].title, "Quiet Place")
         self.assertEqual(vibe_data.sections[2].items[0].title, "Study with me")
-        self.assertEqual(vibe_data.sections[3].items[0].title, "Cozy Room")
+        self.assertEqual(len(vibe_data.sections[3].items), 6)
+        self.assertEqual(vibe_data.sections[3].items[0].title, "Cozy Room 1")
         self.assertEqual(vibe_data.sections[4].items[0].title, "Deep Work")

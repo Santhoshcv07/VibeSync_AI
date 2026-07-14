@@ -12,13 +12,29 @@ class TestAIParserBoundary(unittest.TestCase):
     def setUp(self):
         self.valid_json = """
         {
-            "music": {
-                "title": "Song 1",
-                "creator": "Artist 1",
-                "description": "Desc",
-                "format": "Track",
-                "tags": ["pop"]
-            },
+            "music": [
+                {
+                    "title": "Song 1",
+                    "creator": "Artist 1",
+                    "description": "Desc",
+                    "format": "Track",
+                    "tags": ["pop"]
+                },
+                {
+                    "title": "Song 2",
+                    "creator": "Artist 2",
+                    "description": "Desc",
+                    "format": "Track",
+                    "tags": ["pop"]
+                },
+                {
+                    "title": "Song 3",
+                    "creator": "Artist 3",
+                    "description": "Desc",
+                    "format": "Track",
+                    "tags": ["pop"]
+                }
+            ],
             "movie": {
                 "title": "Movie 1",
                 "creator": "Director 1",
@@ -33,13 +49,14 @@ class TestAIParserBoundary(unittest.TestCase):
                 "format": "Video",
                 "tags": ["vlog"]
             },
-            "pinterest": {
-                "title": "Board 1",
-                "creator": "Creator 1",
-                "description": "Desc",
-                "format": "Board",
-                "tags": ["art"]
-            },
+            "pinterest": [
+                {"title": "Board 1", "creator": "Creator 1", "description": "Desc", "format": "Board", "tags": ["art"]},
+                {"title": "Board 2", "creator": "Creator 2", "description": "Desc", "format": "Board", "tags": ["art"]},
+                {"title": "Board 3", "creator": "Creator 3", "description": "Desc", "format": "Board", "tags": ["art"]},
+                {"title": "Board 4", "creator": "Creator 4", "description": "Desc", "format": "Board", "tags": ["art"]},
+                {"title": "Board 5", "creator": "Creator 5", "description": "Desc", "format": "Board", "tags": ["art"]},
+                {"title": "Board 6", "creator": "Creator 6", "description": "Desc", "format": "Board", "tags": ["art"]}
+            ],
             "book": {
                 "title": "Book 1",
                 "creator": "Author 1",
@@ -54,10 +71,12 @@ class TestAIParserBoundary(unittest.TestCase):
         # Task 17 - Parser Success Tests
         result = parse_structured_vibe_output(self.valid_json)
         self.assertIsInstance(result, StructuredVibeAIOutput)
-        self.assertEqual(result.music.title, "Song 1")
+        self.assertEqual(len(result.music), 3)
+        self.assertEqual(result.music[0].title, "Song 1")
         self.assertEqual(result.movie.title, "Movie 1")
         self.assertEqual(result.youtube.title, "Vid 1")
-        self.assertEqual(result.pinterest.title, "Board 1")
+        self.assertEqual(len(result.pinterest), 6)
+        self.assertEqual(result.pinterest[0].title, "Board 1")
         self.assertEqual(result.book.title, "Book 1")
 
     def test_parser_invalid_json(self):
@@ -110,10 +129,21 @@ class TestAIEndToEndMocked(unittest.IsolatedAsyncioTestCase):
         mock_choice = MagicMock()
         mock_choice.message.content = """
         {
-            "music": {"title": "T", "creator": "C", "description": "D", "format": "F", "tags": ["T"]},
+            "music": [
+                {"title": "T1", "creator": "C", "description": "D", "format": "F", "tags": ["T"]},
+                {"title": "T2", "creator": "C", "description": "D", "format": "F", "tags": ["T"]},
+                {"title": "T3", "creator": "C", "description": "D", "format": "F", "tags": ["T"]}
+            ],
             "movie": {"title": "T", "creator": "C", "description": "D", "format": "F", "tags": ["T"]},
             "youtube": {"title": "T", "creator": "C", "description": "D", "format": "F", "tags": ["T"]},
-            "pinterest": {"title": "T", "creator": "C", "description": "D", "format": "F", "tags": ["T"]},
+            "pinterest": [
+                {"title": "P1", "creator": "C", "description": "D", "format": "F", "tags": ["T"]},
+                {"title": "P2", "creator": "C", "description": "D", "format": "F", "tags": ["T"]},
+                {"title": "P3", "creator": "C", "description": "D", "format": "F", "tags": ["T"]},
+                {"title": "P4", "creator": "C", "description": "D", "format": "F", "tags": ["T"]},
+                {"title": "P5", "creator": "C", "description": "D", "format": "F", "tags": ["T"]},
+                {"title": "P6", "creator": "C", "description": "D", "format": "F", "tags": ["T"]}
+            ],
             "book": {"title": "T", "creator": "C", "description": "D", "format": "F", "tags": ["T"]}
         }
         """
@@ -135,4 +165,5 @@ class TestAIEndToEndMocked(unittest.IsolatedAsyncioTestCase):
         
         # Verify valid internal output
         self.assertIsInstance(result, StructuredVibeAIOutput)
-        self.assertEqual(result.music.title, "T")
+        self.assertEqual(result.music[0].title, "T1")
+        self.assertEqual(len(result.pinterest), 6)

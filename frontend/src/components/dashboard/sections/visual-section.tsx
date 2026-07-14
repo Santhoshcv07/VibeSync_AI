@@ -26,11 +26,11 @@ export function VisualSection({ section, isInitial, isLoading }: VisualSectionPr
         </button>
       </div>
       
-      <div className="grid grid-cols-3 gap-2 flex-1">
+      <div className="grid grid-cols-3 grid-rows-2 gap-2">
         {displayItems.map((item, index) => {
           if (showSkeletons) {
             return (
-              <div key={`skeleton-${index}`} className={`aspect-[4/5] rounded-md bg-[#1c0f35] border border-[#291245] ${isLoading ? 'animate-pulse' : ''}`} />
+              <div key={`skeleton-${index}`} className={`aspect-4/5 rounded-md bg-[#1c0f35] border border-[#291245] ${isLoading ? 'animate-pulse' : ''}`} />
             );
           }
 
@@ -40,19 +40,21 @@ export function VisualSection({ section, isInitial, isLoading }: VisualSectionPr
               href={item.destinationUrl || "#"}
               target={item.destinationUrl ? "_blank" : undefined}
               rel={item.destinationUrl ? "noopener noreferrer" : undefined}
-              className="group relative aspect-[4/5] rounded-md overflow-hidden bg-[#1c0f35] block"
+             className="group relative w-full aspect-4/3 rounded-lg overflow-hidden bg-[#1c0f35] border border-white/5 block"
             >
               {item.imageUrl ? (
                 <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-indigo-900 to-purple-900 opacity-50 flex items-center justify-center">
+                <div className="w-full h-full bg-linear-to-br from-indigo-900 to-purple-900 opacity-50 flex items-center justify-center">
                   <span className="text-white/30 text-xl">🖼️</span>
                 </div>
               )}
               
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2">
-                <p className="text-[9px] font-medium text-white line-clamp-2 leading-tight">{item.title}</p>
-              </div>
+                <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/90 via-black/60 to-transparent px-2 pt-5 pb-1.5">
+      <p className="text-[9px] font-medium text-white line-clamp-1 leading-tight">
+        {item.title}
+      </p>
+    </div>
             </a>
           );
         })}
@@ -63,7 +65,7 @@ export function VisualSection({ section, isInitial, isLoading }: VisualSectionPr
           href={showSkeletons ? "#" : (section?.items[0]?.destinationUrl || "#")}
           target={!showSkeletons && section?.items[0]?.destinationUrl ? "_blank" : undefined}
           rel={!showSkeletons && section?.items[0]?.destinationUrl ? "noopener noreferrer" : undefined}
-          className={`flex items-center justify-center gap-2 w-full max-w-[200px] h-8 rounded-full transition-colors ${showSkeletons ? 'bg-[#1c0f35] text-white/30 cursor-default' : 'bg-white/5 hover:bg-white/10 text-white text-xs font-medium'}`}
+          className={`flex items-center justify-center gap-2 w-full max-w-50 h-8 rounded-full transition-colors ${showSkeletons ? 'bg-[#1c0f35] text-white/30 cursor-default' : 'bg-white/5 hover:bg-white/10 text-white text-xs font-medium'}`}
         >
           <span className={`rounded-full w-3 h-3 flex items-center justify-center text-[8px] font-bold ${showSkeletons ? 'bg-white/20 text-[#110822]' : 'bg-white text-[#e60023]'}`}>p</span>
           Explore More on Pinterest

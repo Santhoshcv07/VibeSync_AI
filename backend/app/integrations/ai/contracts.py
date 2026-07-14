@@ -6,7 +6,7 @@ class BaseAIRecommendation(BaseModel):
     creator: str = Field(..., min_length=1, description="Creator, artist, author, or channel")
     description: str = Field(..., min_length=1, description="Why this fits the vibe")
     format: str = Field(..., min_length=1, description="Format (e.g., Album, Playlist, Movie, Series, Video, Board, Novel)")
-    tags: List[str] = Field(..., min_items=1, description="Related genre or mood tags")
+    tags: List[str] = Field(..., min_length=1, description="Related genre or mood tags")
     duration: Optional[str] = Field(None, description="Optional duration if applicable (e.g., '1h 30m', '45m')")
 
     @field_validator("title", "creator", "description", "format", mode="before")
@@ -38,5 +38,10 @@ class StructuredVibeAIOutput(BaseModel):
     music: List[MusicAIRecommendation] = Field(..., min_length=3, max_length=3, description="Exactly 3 music recommendations")
     movie: MovieAIRecommendation
     youtube: YouTubeAIRecommendation
-    pinterest: PinterestAIRecommendation
+    pinterest: List[PinterestAIRecommendation] = Field(
+        ...,
+        min_length=6,
+        max_length=6,
+        description="Exactly 6 Pinterest visual inspiration recommendations"
+    )
     book: BookAIRecommendation

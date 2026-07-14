@@ -1,7 +1,7 @@
 import { getApiBaseUrl } from "./config";
 import { ApiError, isBackendErrorBody } from "./errors";
 
-const DEFAULT_TIMEOUT_MS = 10000;
+const DEFAULT_TIMEOUT_MS = 60000;
 
 export interface RequestOptions extends Omit<RequestInit, "body"> {
   body?: unknown;

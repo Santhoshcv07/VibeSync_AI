@@ -85,11 +85,31 @@ export function DashboardResults({ vibe, dashboardState }: DashboardResultsProps
           <YouTubeSection section={youtubeSection} isInitial={isInitial} isLoading={isLoading} />
         </div>
         
-        {/* Row 2: Visual (32%) + Movies (32%) + Books (36%) */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-auto">
-          <div className="lg:col-span-1"><VisualSection section={visualSection} isInitial={isInitial} isLoading={isLoading} /></div>
-          <div className="lg:col-span-1"><MovieSection section={moviesSection} isInitial={isInitial} isLoading={isLoading} /></div>
-          <div className="lg:col-span-1"><BookSection section={booksSection} isInitial={isInitial} isLoading={isLoading} /></div>
+       {/* Row 2: Visual + Movies + Books */}
+<div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+          <div className="lg:col-span-1 h-fit">
+  <VisualSection
+    section={visualSection}
+    isInitial={isInitial}
+    isLoading={isLoading}
+  />
+</div>
+
+<div className="lg:col-span-1 h-fit">
+  <MovieSection
+    section={moviesSection}
+    isInitial={isInitial}
+    isLoading={isLoading}
+  />
+</div>
+
+<div className="lg:col-span-1 h-fit">
+  <BookSection
+    section={booksSection}
+    isInitial={isInitial}
+    isLoading={isLoading}
+  />
+</div>
         </div>
       </div>
 
