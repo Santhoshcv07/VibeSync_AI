@@ -14,9 +14,14 @@ interface DashboardResultsProps {
   vibe: VibeExperienceData | null;
   context?: Record<string, unknown> | null;
   dashboardState: DashboardState;
+  onOpenVisualGallery?: () => void;
 }
 
-export function DashboardResults({ vibe, dashboardState }: DashboardResultsProps) {
+export function DashboardResults({
+  vibe,
+  dashboardState,
+  onOpenVisualGallery,
+}: DashboardResultsProps) {
   const isInitial = dashboardState === "initial";
   const isLoading = dashboardState === "loading";
   const isError = dashboardState === "error";
@@ -89,10 +94,11 @@ export function DashboardResults({ vibe, dashboardState }: DashboardResultsProps
 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
           <div className="lg:col-span-1 h-fit">
   <VisualSection
-    section={visualSection}
-    isInitial={isInitial}
-    isLoading={isLoading}
-  />
+  section={visualSection}
+  isInitial={isInitial}
+  isLoading={isLoading}
+  onSeeAll={onOpenVisualGallery}
+/>
 </div>
 
 <div className="lg:col-span-1 h-fit">

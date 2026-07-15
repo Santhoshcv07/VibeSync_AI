@@ -1,18 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+import { useRouter } from "next/navigation";
+
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { DashboardControlBar } from "@/components/dashboard/dashboard-control-bar";
 import { DashboardResults } from "@/components/dashboard/dashboard-results";
 import { VibeExperienceData } from "@/components/vibe/vibe-experience.data";
+import { useCurrentVibe } from "@/components/vibe/current-vibe-provider";
 
 export type DashboardState = "initial" | "loading" | "success" | "error";
 
 export default function DashboardPage() {
-  const [dashboardState, setDashboardState] = useState<DashboardState>("initial");
-  const [vibeData, setVibeData] = useState<VibeExperienceData | null>(null);
-  const [selectedContext, setSelectedContext] = useState<Record<string, unknown> | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const router = useRouter();
+  const { currentVibe, setCurrentVibe } = useCurrentVibe();
+
+  const [dashboardState, setDashboardState] =
+    useState<DashboardState>("initial");
+
+  const [vibeData, setVibeData] =
+    useState<VibeExperienceData | null>(null);
+
+  const [selectedContext, setSelectedContext] =
+    useState<Record<string, unknown> | null>(null);
+
+  const [errorMsg, setErrorMsg] =
+    useState<string | null>(null);
+
+  useEffect(() => {
+    if (currentVibe) {
+      setVibeData(currentVibe);
+      setDashboardState("success");
+    }
+  }, [currentVibe]);
 
   return (
     <div className="flex flex-col min-h-screen bg-[#05020a] w-full text-white pb-24 overflow-x-hidden relative">
@@ -29,11 +50,12 @@ export default function DashboardPage() {
           }}
           onGenerateComplete={(data, error, context) => {
             setSelectedContext(context);
-            if (data) {
-              setVibeData(data);
-              setDashboardState("success");
-              setErrorMsg(null);
-            } else {
+                                if (data) {
+                  setVibeData(data);
+                  setCurrentVibe(data);
+                  setDashboardState("success");
+                  setErrorMsg(null);
+                }else {
               setDashboardState("error");
               setErrorMsg(error || "Failed to generate your vibe.");
             }
@@ -44,11 +66,12 @@ export default function DashboardPage() {
         
         {/* Always render the results grid to maintain structure */}
         <div className="mt-2 animate-in fade-in duration-700 slide-in-from-bottom-8">
-          <DashboardResults 
-            vibe={vibeData} 
-            context={selectedContext}
-            dashboardState={dashboardState}
-          />
+          <DashboardResults
+  vibe={vibeData}
+  context={selectedContext}
+  dashboardState={dashboardState}
+  onOpenVisualGallery={() => router.push("/dashboard/visuals")}
+/>
         </div>
       </div>
     </div>

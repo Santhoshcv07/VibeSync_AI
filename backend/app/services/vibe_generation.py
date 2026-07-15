@@ -197,7 +197,7 @@ class VibeGenerationService:
                     elif item.category == VibeMediaCategory.visual_inspiration:
                         enrich_tasks.append(enrich_visual(item))
                     elif item.category == VibeMediaCategory.books:
-                        pass
+                        enrich_tasks.append(enrich_book(item))
                     
         if enrich_tasks:
             await asyncio.gather(*enrich_tasks)

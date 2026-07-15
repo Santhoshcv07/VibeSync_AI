@@ -23,14 +23,19 @@ export function MovieSection({ section, isInitial, isLoading }: MovieSectionProp
         />
       )}
       
-      <div className="relative z-10 flex items-center justify-between mb-4 shrink-0">
-        <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-          <span className="text-[#e50914] font-bold">N</span> Featured for Your Vibe <span className="text-white/40 font-normal text-xs">(Netflix)</span>
-        </h3>
-        <button className="text-xs text-white/50 hover:text-white transition-colors" disabled={showSkeletons}>
-          See All
-        </button>
-      </div>
+      <div className="relative z-10 flex items-center mb-4 shrink-0">
+  <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+    <span className="text-[#e50914] font-bold">
+      N
+    </span>
+
+    Featured for Your Vibe
+
+    <span className="text-white/40 font-normal text-xs">
+      (Netflix)
+    </span>
+  </h3>
+</div>
       
       <div className="relative z-10 flex gap-4 h-full">
         <div className={`w-[45%] shrink-0 rounded-md overflow-hidden bg-[#1c0f35] border border-[#291245] shadow-lg shadow-black/40 ${isLoading ? 'animate-pulse' : ''}`}>
@@ -89,9 +94,14 @@ export function MovieSection({ section, isInitial, isLoading }: MovieSectionProp
       
       <div className="relative z-10 mt-4 flex items-center gap-2">
         <a 
-          href={showSkeletons ? "#" : (featured!.destinationUrl || "#")}
-          target={!showSkeletons && featured!.destinationUrl ? "_blank" : undefined}
-          rel={!showSkeletons && featured!.destinationUrl ? "noopener noreferrer" : undefined}
+         href={
+  showSkeletons
+    ? "#"
+    : featured?.destinationUrl ||
+      `https://www.netflix.com/search?q=${encodeURIComponent(featured?.title || "")}`
+}
+          target={!showSkeletons ? "_blank" : undefined}
+          rel={!showSkeletons ? "noopener noreferrer" : undefined}
           className={`flex-1 flex items-center justify-center gap-2 h-9 rounded text-xs font-medium transition-colors ${showSkeletons ? 'bg-[#1c0f35] text-white/30 cursor-default' : 'bg-[#e50914] hover:bg-[#b81d24] text-white'}`}
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>

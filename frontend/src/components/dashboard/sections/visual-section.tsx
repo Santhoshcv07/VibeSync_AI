@@ -7,9 +7,15 @@ interface VisualSectionProps {
   section: VibeMediaSectionData | null;
   isInitial?: boolean;
   isLoading?: boolean;
+  onSeeAll?: () => void;
 }
 
-export function VisualSection({ section, isInitial, isLoading }: VisualSectionProps) {
+export function VisualSection({
+  section,
+  isInitial,
+  isLoading,
+  onSeeAll,
+}: VisualSectionProps) {
   const showSkeletons = isInitial || isLoading || !section;
   // Take up to 6 items to create a 3x2 grid if possible
   const displayItems = showSkeletons ? Array(6).fill(null) : section!.items.slice(0, 6);
@@ -21,9 +27,14 @@ export function VisualSection({ section, isInitial, isLoading }: VisualSectionPr
           <span className="text-[#e60023] w-4 h-4 rounded-full bg-white flex items-center justify-center font-bold text-[10px]">p</span>
           See Your Vibe <span className="text-white/40 font-normal text-xs">(Pinterest)</span>
         </h3>
-        <button className="text-xs text-white/50 hover:text-white transition-colors" disabled={showSkeletons}>
-          See All
-        </button>
+        <button
+  type="button"
+  onClick={onSeeAll}
+  disabled={showSkeletons || !onSeeAll}
+  className="text-xs text-white/50 hover:text-white transition-colors disabled:cursor-default disabled:opacity-50"
+>
+  See All
+</button>
       </div>
       
       <div className="grid grid-cols-3 grid-rows-2 gap-2">
