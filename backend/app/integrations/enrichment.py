@@ -112,43 +112,106 @@ async def enrich_youtube_section(section: VibeMediaSection, request: GenerateVib
     except Exception as e:
         logger.warning(f"YouTube enrichment failed: {e}")
 
-async def enrich_movie(item: MovieRecommendation) -> MovieRecommendation:
-    if not settings.TMDB_API_KEY or settings.TMDB_API_KEY.startswith("YOUR_"):
+async def enrich_movie(
+    item: MovieRecommendation
+) -> MovieRecommendation:
+
+    if (
+        not settings.TMDB_API_KEY
+        or settings.TMDB_API_KEY.startswith("YOUR_")
+    ):
         return item
-        
+
     try:
         async with httpx.AsyncClient() as client:
-            # We assume it's a movie by default. A more advanced version would check if it's a TV show.
-            query = item.title
-            res = await client.get(
-                "https://api.themoviedb.org/3/search/multi",
-                params={
-                    "api_key": settings.TMDB_API_KEY,
-                    "query": query,
-                    "page": 1
-                },
-                timeout=5.0
-            )
-            res.raise_for_status()
-            results = res.json().get("results", [])
-            
-            if results:
-                # Find first movie or tv
-                media = next((r for r in results if r.get("media_type") in ["movie", "tv"]), None) or results[0]
-                
-                poster_path = media.get("poster_path")
-                if poster_path:
-                    item.imageUrl = f"https://image.tmdb.org/t/p/w500{poster_path}"
-                    
-                media_type = media.get("media_type", "movie")
-                media_id = media.get("id")
-                if media_id:
-                    item.destinationUrl = f"https://www.themoviedb.org/{media_type}/{media_id}"
-    except Exception as e:
-        logger.warning(f"TMDB enrichment failed for {item.title}: {e}")
-        
-    return item
 
+            # Try the original title first.
+            search_queries = [item.title]
+
+            # Add a simple fallback for accented movie titles.
+            normalized_title = (
+                item.title
+                .replace("é", "e")
+                .replace("É", "E")
+                .replace("è", "e")
+                .replace("á", "a")
+                .replace("à", "a")
+                .replace("ö", "o")
+                .replace("ü", "u")
+            )
+
+            if normalized_title != item.title:
+                search_queries.append(normalized_title)
+
+            media = None
+
+            for query in search_queries:
+                response = await client.get(
+                    "https://api.themoviedb.org/3/search/multi",
+                    params={
+                        "api_key": settings.TMDB_API_KEY,
+                        "query": query,
+                        "include_adult": "false",
+                        "language": "en-US",
+                        "page": 1,
+                    },
+                    timeout=10.0,
+                )
+
+                response.raise_for_status()
+
+                results = response.json().get("results", [])
+
+                # Use only movie or TV results.
+                valid_results = [
+                    result
+                    for result in results
+                    if result.get("media_type")
+                    in ["movie", "tv"]
+                ]
+
+                # Prefer a result that contains a poster.
+                media = next(
+                    (
+                        result
+                        for result in valid_results
+                        if result.get("poster_path")
+                    ),
+                    None,
+                )
+
+                if media:
+                    break
+
+            if media:
+                poster_path = media.get("poster_path")
+
+                if poster_path:
+                    item.imageUrl = (
+                        "https://image.tmdb.org/t/p/w500"
+                        f"{poster_path}"
+                    )
+
+                media_type = media.get(
+                    "media_type",
+                    "movie",
+                )
+
+                media_id = media.get("id")
+
+                if media_id:
+                    item.destinationUrl = (
+                        "https://www.themoviedb.org/"
+                        f"{media_type}/{media_id}"
+                    )
+
+    except Exception as error:
+        logger.warning(
+            "TMDB enrichment failed for "
+            f"{item.title}: {error}"
+        )
+
+    return item
 async def enrich_visual(item: PinterestRecommendation) -> PinterestRecommendation:
     # We fallback to Unsplash since Pinterest API requires complex auth
     if not settings.VISUAL_PROVIDER_API_KEY or settings.VISUAL_PROVIDER_API_KEY.startswith("YOUR_"):

@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from "react";
 import { 
-  vibeHistoryEntries,
   VibeHistoryMood,
   VibeHistoryDateRange,
   VibeHistorySort,
@@ -15,6 +14,8 @@ import { VibeHistoryToolbar } from "./vibe-history-toolbar";
 import { VibeHistoryGroup as VibeHistoryGroupComponent } from "./vibe-history-group";
 import { VibeHistoryEmptyState } from "./vibe-history-empty-state";
 import { VibeHistoryFeedback } from "./vibe-history-feedback";
+import { deleteVibeAction } from "@/app/actions/vibes";
+import { useRouter } from "next/navigation";
 
 const GROUP_ORDER_NEWEST: VibeHistoryGroup[] = ["today", "yesterday", "earlier-this-week", "last-week"];
 const GROUP_ORDER_OLDEST: VibeHistoryGroup[] = ["last-week", "earlier-this-week", "yesterday", "today"];
@@ -25,14 +26,19 @@ const GROUP_LABELS: Record<VibeHistoryGroup, string> = {
   "last-week": "Last week"
 };
 
-export function VibeHistoryTimeline() {
+export interface VibeHistoryTimelineProps {
+  initialEntries: VibeHistoryEntryData[];
+}
+
+export function VibeHistoryTimeline({ initialEntries }: VibeHistoryTimelineProps) {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMood, setSelectedMood] = useState<VibeHistoryMood | "all">("all");
   const [dateRange, setDateRange] = useState<VibeHistoryDateRange>("all");
   const [sort, setSort] = useState<VibeHistorySort>("newest");
   
   const [visibleEntryIds, setVisibleEntryIds] = useState<string[]>(
-    vibeHistoryEntries.map((entry) => entry.id)
+    initialEntries.map((entry) => entry.id)
   );
   const [expandedEntryIds, setExpandedEntryIds] = useState<string[]>([]);
   const [lastRemovedEntryId, setLastRemovedEntryId] = useState<string | null>(null);
@@ -40,8 +46,8 @@ export function VibeHistoryTimeline() {
 
   // Determine available entries based on removed state
   const availableEntries = useMemo(() => {
-    return vibeHistoryEntries.filter((entry) => visibleEntryIds.includes(entry.id));
-  }, [visibleEntryIds]);
+    return initialEntries.filter((entry) => visibleEntryIds.includes(entry.id));
+  }, [visibleEntryIds, initialEntries]);
 
   // Derived summaries
   const availableCount = availableEntries.length;
@@ -119,46 +125,40 @@ export function VibeHistoryTimeline() {
     );
   };
 
-  const handleRemove = (entryId: string) => {
+  const handleRemove = async (entryId: string) => {
     const entryToRemove = availableEntries.find(e => e.id === entryId);
     if (!entryToRemove) return;
 
+    // Optimistic UI update
     setVisibleEntryIds(prev => prev.filter(id => id !== entryId));
     setExpandedEntryIds(prev => prev.filter(id => id !== entryId));
-    setLastRemovedEntryId(entryId);
-    setFeedbackMessage(`${entryToRemove.title} was removed from this history preview. Nothing was deleted or stored.`);
+
+    try {
+      const success = await deleteVibeAction(entryId);
+      if (success) {
+        setFeedbackMessage(`${entryToRemove.title} was permanently deleted.`);
+      } else {
+        // Revert on failure
+        setVisibleEntryIds(prev => [...prev, entryId]);
+        setFeedbackMessage(`Failed to delete ${entryToRemove.title}.`);
+      }
+    } catch (error) {
+      setVisibleEntryIds(prev => [...prev, entryId]);
+      setFeedbackMessage(`Error deleting ${entryToRemove.title}.`);
+    }
   };
 
   const handleRestore = () => {
-    if (!lastRemovedEntryId) return;
-    
-    const entryToRestore = vibeHistoryEntries.find(e => e.id === lastRemovedEntryId);
-    if (!entryToRestore) return;
-
-    setVisibleEntryIds(prev => {
-      // Reconstruct visible entries maintaining original data order
-      const originalOrderMap = new Map(vibeHistoryEntries.map((e, i) => [e.id, i]));
-      const newVisibleIds = [...prev, lastRemovedEntryId];
-      newVisibleIds.sort((a, b) => (originalOrderMap.get(a) ?? 0) - (originalOrderMap.get(b) ?? 0));
-      return newVisibleIds;
-    });
-    
-    setLastRemovedEntryId(null);
-    setFeedbackMessage(`${entryToRestore.title} was restored to this history preview. Nothing was stored.`);
+    // We don't support restore anymore since delete is permanent
   };
 
   const handleClearHistory = () => {
-    setVisibleEntryIds([]);
-    setExpandedEntryIds([]);
-    setLastRemovedEntryId(null);
-    setFeedbackMessage("");
+    // Clear history would need a backend route to delete all, for now just show message
+    setFeedbackMessage("Clear history requires selecting items manually for now.");
   };
 
   const handleRestoreHistory = () => {
-    setVisibleEntryIds(vibeHistoryEntries.map(e => e.id));
-    setExpandedEntryIds([]);
-    setLastRemovedEntryId(null);
-    setFeedbackMessage("The fictional prototype history was restored locally. Nothing was stored.");
+    // No longer applicable with real data
   };
 
   const handleResetFilters = () => {

@@ -1,80 +1,46 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { type VibeMood, type VibeDuration, moodOptions, durationOptions } from "./generate-vibe.types";
+import React from "react";
+import { type VibeMood, type VibeDuration } from "./generate-vibe.types";
 
 export interface VibeSelectionSummaryProps {
-  mood: VibeMood | null;
-  duration: VibeDuration | null;
-  intention: string;
+  mood?: VibeMood | null;
+  duration?: VibeDuration | null;
+  intention?: string;
+  isSubmitting?: boolean;
 }
 
-export function VibeSelectionSummary({ mood, duration, intention }: VibeSelectionSummaryProps) {
-  const isComplete = mood && duration;
-  
-  const moodLabel = moodOptions.find(m => m.value === mood)?.label;
-  const durationLabel = durationOptions.find(d => d.value === duration)?.label;
-
-  const getDurationPreview = () => {
-    switch (duration) {
-      case "15-min": return "Music · short video · visual inspiration";
-      case "30-min": return "Music · video · visual inspiration · short reading";
-      case "1-hour": return "Music · episode or long-form video · visual inspiration · reading";
-      case "all-night": return "Music · movie or episodes · YouTube · visual inspiration · books";
-      default: return "";
-    }
-  };
-
+export function VibeSelectionSummary({ mood, duration, intention, isSubmitting }: VibeSelectionSummaryProps) {
   return (
-    <Card className="w-full border-[var(--border)] overflow-hidden bg-[var(--surface-elevated)] transition-all">
-      <CardHeader className="bg-[var(--surface-floating)] border-b border-[var(--border)] flex flex-row items-center justify-between pb-4 gap-2">
-        <CardTitle className="text-heading-4 font-display text-foreground">
-          Your Vibe preview
-        </CardTitle>
-        <Badge variant="neutral" size="sm" className="font-normal shrink-0">Local selection preview</Badge>
-      </CardHeader>
+    <div className="w-[320px] rounded-[24px] border border-white/5 bg-[#0D1324] p-5 shadow-[0_25px_80px_rgba(0,0,0,.45)]">
       
-      <CardContent className="p-5 flex flex-col gap-6">
-        {!isComplete && (
-          <p className="text-body text-foreground-muted">
-            Choose a mood and time to shape the preview.
-          </p>
-        )}
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-[18px] font-bold text-white tracking-tight">
+          Your Vibe preview
+        </h3>
+        <span className="rounded-full bg-[#18203c] px-3 py-1 text-[11px] font-medium text-purple-300 border border-white/5">
+          Local preview
+        </span>
+      </div>
 
-        {isComplete && (
-          <>
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="primary" size="md">{moodLabel}</Badge>
-                <Badge variant="neutral" size="md">{durationLabel}</Badge>
-              </div>
-              
-              {intention && (
-                <div className="bg-[var(--surface-subtle)] p-3 rounded-[var(--radius-md)] border border-[var(--border)] border-l-4 border-l-[var(--primary)]">
-                  <p className="text-body-sm text-foreground italic break-words">&quot;{intention}&quot;</p>
-                </div>
-              )}
-            </div>
+      <div className="overflow-hidden rounded-[16px]">
+        <img
+          src="/images/generate/vibesync-mountain-bg.jpeg"
+          alt="Vibe Preview"
+          className="h-[180px] w-full object-cover"
+        />
+      </div>
 
-            <div className="h-px bg-[var(--border)] my-1 w-full" aria-hidden="true" />
+      <div className="mt-4">
+        <p className="text-[14px] leading-[1.6] text-white/80">
+          Choose a mood and time<br/>
+          to shape the preview.
+        </p>
+      </div>
 
-            <div className="flex flex-col gap-3">
-              <span className="text-label text-foreground-muted uppercase tracking-wider font-bold">Planned Content Mix</span>
-              
-              <div className="flex flex-wrap gap-2 mb-2">
-                <Badge variant="neutral" className="bg-[var(--surface-subtle)]">Music</Badge>
-                {duration !== "15-min" && duration !== "30-min" && <Badge variant="neutral" className="bg-[var(--surface-subtle)]">Movies & Shows</Badge>}
-                <Badge variant="neutral" className="bg-[var(--surface-subtle)]">YouTube</Badge>
-                <Badge variant="neutral" className="bg-[var(--surface-subtle)]">Visual Inspiration</Badge>
-                <Badge variant="neutral" className="bg-[var(--surface-subtle)]">Books</Badge>
-              </div>
+      <button className="mt-6 flex h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#ec4899] to-[#3b82f6] text-[15px] font-semibold text-white shadow-[0_0_20px_rgba(236,72,153,0.3)] transition-transform hover:scale-[1.02]">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+        Generate My Vibe
+      </button>
 
-              <p className="text-body-sm font-medium text-foreground">
-                {getDurationPreview()}
-              </p>
-            </div>
-          </>
-        )}
-      </CardContent>
-    </Card>
+    </div>
   );
 }

@@ -1,30 +1,59 @@
-import { VibeSyncBrand } from "@/components/marketing/vibesync-brand";
-import { AppNavigation, primaryNavigation, secondaryNavigation } from "./app-navigation";
-import { Switch } from "@/components/ui/switch";
+import {
+  AppNavigation,
+  primaryNavigation,
+  secondaryNavigation,
+} from "./app-navigation";
+
+import { SidebarDecor } from "@/components/navigation/sidebar/sidebar-decor";
 
 export function AppSidebar() {
   return (
-    <aside className="hidden lg:flex flex-col w-64 border-r border-[#37195c] bg-[#080312] shrink-0 h-screen sticky top-0">
-      <div className="h-16 flex flex-col justify-center px-6 shrink-0 mt-4">
-        <VibeSyncBrand />
-        <p className="text-[10px] text-white/50 tracking-wide mt-1 pl-1">
+    <aside className="hidden lg:flex min-h-full w-[240px] shrink-0 flex-col self-stretch bg-gradient-to-b from-[#05060B] via-[#090B16] to-[#0C0717] shadow-[inset_-10px_0_30px_rgba(168,85,247,0.03)] border-r border-violet-500/10 z-10 relative">
+      
+      {/* Glow across sidebar */}
+      <div className="absolute inset-0 pointer-events-none bg-violet-900/5 mix-blend-screen" />
+
+      {/* VibeSync logo */}
+      <div className="mt-6 flex shrink-0 flex-col px-6 relative z-10">
+        <div className="flex items-center gap-2.5">
+          {/* Custom Colorful Waveform Icon */}
+          <div className="flex items-center gap-[3px] h-8">
+            <div className="w-1.5 h-3.5 bg-cyan-400 rounded-full" />
+            <div className="w-1.5 h-5 bg-blue-400 rounded-full" />
+            <div className="w-1.5 h-7 bg-purple-500 rounded-full" />
+            <div className="w-1.5 h-5 bg-orange-400 rounded-full" />
+            <div className="w-1.5 h-3.5 bg-rose-500 rounded-full" />
+          </div>
+          <span className="font-bold text-xl tracking-tight flex items-center gap-1.5">
+            <span className="text-white">VibeSync</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-purple-500">AI</span>
+          </span>
+        </div>
+
+        <p className="mt-1 text-[10px] tracking-widest text-white/50 uppercase font-bold">
           Your mood. Your universe.
         </p>
       </div>
 
-      <div className="flex-1 overflow-y-auto py-6 px-3 flex flex-col gap-8">
-        <div>
-          <AppNavigation items={primaryNavigation} aria-label="Primary application navigation" />
-        </div>
+      {/* Main navigation */}
+      <div className="px-4 py-8 relative z-10">
+        <AppNavigation
+          items={primaryNavigation}
+          aria-label="Primary application navigation"
+        />
       </div>
 
-      <div className="px-3 pb-6 shrink-0 flex flex-col gap-1">
-        <AppNavigation items={secondaryNavigation} aria-label="Secondary application navigation" />
-        
-        <div className="flex items-center gap-3 px-3 py-2 mt-2 text-foreground-muted hover:bg-[var(--surface-floating)] hover:text-foreground rounded-md transition-colors cursor-pointer">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-foreground-subtle"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
-          <Switch id="dark-mode-toggle" defaultChecked={true} label="Dark Mode" className="ml-auto" />
-        </div>
+      {/* Decorative Area */}
+      <div className="flex-1 relative overflow-hidden pointer-events-none">
+        <SidebarDecor />
+      </div>
+      
+      {/* Profile and Settings */}
+      <div className="mt-auto shrink-0 px-4 py-6 relative z-10">
+        <AppNavigation
+          items={secondaryNavigation}
+          aria-label="Secondary application navigation"
+        />
       </div>
     </aside>
   );

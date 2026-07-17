@@ -1,7 +1,6 @@
 "use client";
 
 import { VibeMediaSectionData } from "@/components/vibe/vibe-experience.data";
-import { Button } from "@/components/ui/button";
 
 interface VisualSectionProps {
   section: VibeMediaSectionData | null;
@@ -12,76 +11,326 @@ interface VisualSectionProps {
 
 export function VisualSection({
   section,
-  isInitial,
-  isLoading,
+  isInitial = false,
+  isLoading = false,
   onSeeAll,
 }: VisualSectionProps) {
-  const showSkeletons = isInitial || isLoading || !section;
-  // Take up to 6 items to create a 3x2 grid if possible
-  const displayItems = showSkeletons ? Array(6).fill(null) : section!.items.slice(0, 6);
+  const showSkeletons =
+    isInitial || isLoading || !section;
+
+  const displayItems = showSkeletons
+    ? Array(6).fill(null)
+    : section.items.slice(0, 6);
+
+  const pinterestUrl =
+    !showSkeletons &&
+    section?.items[0]?.destinationUrl
+      ? section.items[0].destinationUrl
+      : "https://www.pinterest.com/search/pins/?q=aesthetic%20inspiration";
 
   return (
-    <div className="flex flex-col h-full bg-[#110822] border border-[#291245] rounded-xl p-4 shadow-lg overflow-hidden">
-      <div className="flex items-center justify-between mb-4 shrink-0">
-        <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-          <span className="text-[#e60023] w-4 h-4 rounded-full bg-white flex items-center justify-center font-bold text-[10px]">p</span>
-          See Your Vibe <span className="text-white/40 font-normal text-xs">(Pinterest)</span>
-        </h3>
+    <section
+      className="
+        relative
+        flex
+        h-full
+        min-h-[292px]
+        flex-col
+        overflow-hidden
+        rounded-2xl
+        border
+        border-[#3b2b78]/70
+        bg-[#101536]/80
+        p-3.5
+        shadow-[0_16px_45px_rgba(0,0,0,0.25)]
+        backdrop-blur-xl
+      "
+    >
+      {/* Soft glass glow */}
+      <div
+        className="
+          pointer-events-none
+          absolute
+          -left-16
+          -top-20
+          h-44
+          w-44
+          rounded-full
+          bg-blue-500/10
+          blur-[70px]
+        "
+      />
+
+      <div
+        className="
+          pointer-events-none
+          absolute
+          -bottom-20
+          right-0
+          h-40
+          w-48
+          rounded-full
+          bg-violet-500/10
+          blur-[70px]
+        "
+      />
+
+      {/* Header */}
+      <div className="relative z-10 mb-3 flex shrink-0 items-center justify-between">
+        <div className="flex min-w-0 items-center gap-2">
+          <span
+            className="
+              flex
+              h-5
+              w-5
+              shrink-0
+              items-center
+              justify-center
+              rounded-full
+              bg-[#e60023]
+              text-[12px]
+              font-bold
+              text-white
+            "
+          >
+            P
+          </span>
+
+          <h3 className="truncate text-sm font-semibold text-white">
+            See Your Vibe{" "}
+            <span className="font-normal text-white/45">
+              (Pinterest)
+            </span>
+          </h3>
+        </div>
+
         <button
-  type="button"
-  onClick={onSeeAll}
-  disabled={showSkeletons || !onSeeAll}
-  className="text-xs text-white/50 hover:text-white transition-colors disabled:cursor-default disabled:opacity-50"
->
-  See All
-</button>
+          type="button"
+          onClick={onSeeAll}
+          disabled={showSkeletons || !onSeeAll}
+          className="
+            shrink-0
+            text-xs
+            font-medium
+            text-violet-300
+            transition-colors
+            hover:text-violet-100
+            disabled:cursor-default
+            disabled:opacity-40
+          "
+        >
+          See All
+        </button>
       </div>
-      
-      <div className="grid grid-cols-3 grid-rows-2 gap-2">
+
+      {/* Pinterest image grid */}
+      <div
+        className="
+          relative
+          z-10
+          grid
+          flex-1
+          grid-cols-3
+          grid-rows-2
+          gap-2
+        "
+      >
         {displayItems.map((item, index) => {
           if (showSkeletons) {
             return (
-              <div key={`skeleton-${index}`} className={`aspect-4/5 rounded-md bg-[#1c0f35] border border-[#291245] ${isLoading ? 'animate-pulse' : ''}`} />
+              <div
+                key={`visual-skeleton-${index}`}
+                className={`
+                  min-h-[76px]
+                  overflow-hidden
+                  rounded-md
+                  border
+                  border-white/10
+                  bg-[#192044]
+                  ${
+                    isLoading
+                      ? "animate-pulse"
+                      : ""
+                  }
+                `}
+              />
             );
           }
 
           return (
             <a
               key={item.id}
-              href={item.destinationUrl || "#"}
-              target={item.destinationUrl ? "_blank" : undefined}
-              rel={item.destinationUrl ? "noopener noreferrer" : undefined}
-             className="group relative w-full aspect-4/3 rounded-lg overflow-hidden bg-[#1c0f35] border border-white/5 block"
+              href={
+                item.destinationUrl || "#"
+              }
+              target={
+                item.destinationUrl
+                  ? "_blank"
+                  : undefined
+              }
+              rel={
+                item.destinationUrl
+                  ? "noopener noreferrer"
+                  : undefined
+              }
+              className="
+                group
+                relative
+                block
+                min-h-[76px]
+                overflow-hidden
+                rounded-md
+                border
+                border-white/10
+                bg-[#182044]
+                transition-all
+                duration-300
+                hover:-translate-y-0.5
+                hover:border-violet-300/50
+                hover:shadow-[0_8px_24px_rgba(76,29,149,0.25)]
+              "
             >
               {item.imageUrl ? (
-                <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                <img
+                  src={item.imageUrl}
+                  alt={item.title}
+                  className="
+                    h-full
+                    w-full
+                    object-cover
+                    transition-transform
+                    duration-500
+                    group-hover:scale-105
+                  "
+                />
               ) : (
-                <div className="w-full h-full bg-linear-to-br from-indigo-900 to-purple-900 opacity-50 flex items-center justify-center">
-                  <span className="text-white/30 text-xl">🖼️</span>
+                <div
+                  className="
+                    flex
+                    h-full
+                    w-full
+                    items-center
+                    justify-center
+                    bg-linear-to-br
+                    from-[#172554]
+                    via-[#312e81]
+                    to-[#581c87]
+                  "
+                >
+                  <span className="text-lg opacity-50">
+                    🖼️
+                  </span>
                 </div>
               )}
-              
-                <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/90 via-black/60 to-transparent px-2 pt-5 pb-1.5">
-      <p className="text-[9px] font-medium text-white line-clamp-1 leading-tight">
-        {item.title}
-      </p>
-    </div>
+
+              {/* Dark title overlay */}
+              <div
+                className="
+                  absolute
+                  inset-x-0
+                  bottom-0
+                  bg-linear-to-t
+                  from-black/95
+                  via-black/65
+                  to-transparent
+                  px-2
+                  pb-1.5
+                  pt-7
+                "
+              >
+                <p
+                  title={item.title}
+                  className="
+                    truncate
+                    text-[9px]
+                    font-semibold
+                    leading-tight
+                    text-white
+                  "
+                >
+                  {item.title}
+                </p>
+              </div>
             </a>
           );
         })}
       </div>
-      
-      <div className="mt-4 flex justify-center w-full">
-        <a 
-          href={showSkeletons ? "#" : (section?.items[0]?.destinationUrl || "#")}
-          target={!showSkeletons && section?.items[0]?.destinationUrl ? "_blank" : undefined}
-          rel={!showSkeletons && section?.items[0]?.destinationUrl ? "noopener noreferrer" : undefined}
-          className={`flex items-center justify-center gap-2 w-full max-w-50 h-8 rounded-full transition-colors ${showSkeletons ? 'bg-[#1c0f35] text-white/30 cursor-default' : 'bg-white/5 hover:bg-white/10 text-white text-xs font-medium'}`}
+
+      {/* Pinterest button */}
+      <div className="relative z-10 mt-3 flex shrink-0 justify-center">
+        <a
+          href={
+            showSkeletons
+              ? "#"
+              : pinterestUrl
+          }
+          target={
+            showSkeletons
+              ? undefined
+              : "_blank"
+          }
+          rel={
+            showSkeletons
+              ? undefined
+              : "noopener noreferrer"
+          }
+          onClick={(event) => {
+            if (showSkeletons) {
+              event.preventDefault();
+            }
+          }}
+          className={`
+            inline-flex
+            h-8
+            min-w-[195px]
+            items-center
+            justify-center
+            gap-2
+            rounded-full
+            border
+            border-white/10
+            px-5
+            text-[11px]
+            font-semibold
+            transition-all
+            duration-300
+            ${
+              showSkeletons
+                ? `
+                  cursor-default
+                  bg-white/5
+                  text-white/30
+                `
+                : `
+                  bg-[#25204c]/90
+                  text-white
+                  hover:-translate-y-0.5
+                  hover:bg-[#30285f]
+                  hover:shadow-[0_7px_20px_rgba(88,28,135,0.25)]
+                `
+            }
+          `}
         >
-          <span className={`rounded-full w-3 h-3 flex items-center justify-center text-[8px] font-bold ${showSkeletons ? 'bg-white/20 text-[#110822]' : 'bg-white text-[#e60023]'}`}>p</span>
+          <span
+            className="
+              flex
+              h-4
+              w-4
+              items-center
+              justify-center
+              rounded-full
+              bg-[#e60023]
+              text-[9px]
+              font-bold
+              text-white
+            "
+          >
+            P
+          </span>
+
           Explore More on Pinterest
         </a>
       </div>
-    </div>
+    </section>
   );
 }

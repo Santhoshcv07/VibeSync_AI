@@ -4,6 +4,7 @@ import { useState, useRef, FormEvent } from "react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { cn } from "@/lib/cn";
 import { MoodSelector } from "./mood-selector";
 import { TimeSelector } from "./time-selector";
 import { VibeIntentionField } from "./vibe-intention-field";
@@ -14,9 +15,9 @@ import { generateVibe } from "@/lib/api/vibes";
 import { ApiError } from "@/lib/api/errors";
 import { VibeExperienceClient } from "@/components/vibe/vibe-experience-client";
 import { type VibeExperienceData } from "@/components/vibe/vibe-experience.data";
-import { 
-  type GenerateVibeFormValues, 
-  type GenerateVibeFormErrors, 
+import {
+  type GenerateVibeFormValues,
+  type GenerateVibeFormErrors,
   type GenerateVibeFieldName,
   type VibeMood,
   type VibeDuration
@@ -31,7 +32,7 @@ export function GenerateVibeForm() {
 
   const [errors, setErrors] = useState<GenerateVibeFormErrors>({});
   const [touched, setTouched] = useState<Partial<Record<GenerateVibeFieldName, boolean>>>({});
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [showSummaryAlert, setShowSummaryAlert] = useState(false);
@@ -62,12 +63,12 @@ export function GenerateVibeForm() {
   const validateAll = (currentValues: GenerateVibeFormValues): GenerateVibeFormErrors => {
     const newErrors: GenerateVibeFormErrors = {};
     const fields: GenerateVibeFieldName[] = ["mood", "duration", "intention"];
-    
+
     fields.forEach((field) => {
       const error = validateField(field, currentValues);
       if (error) newErrors[field] = error;
     });
-    
+
     return newErrors;
   };
 
@@ -117,7 +118,7 @@ export function GenerateVibeForm() {
 
     if (Object.keys(newErrors).length > 0) {
       setShowSummaryAlert(true);
-      
+
       if (newErrors.mood) {
         moodRef.current?.focus();
       } else if (newErrors.duration) {
@@ -125,7 +126,7 @@ export function GenerateVibeForm() {
       } else if (newErrors.intention) {
         intentionRef.current?.focus();
       }
-      
+
       return;
     }
 
@@ -135,15 +136,15 @@ export function GenerateVibeForm() {
 
     try {
       if (!values.mood) return; // Should be caught by validation
-      
+
       const response = await generateVibe({
         mood: values.mood,
         context: values.intention.trim() || undefined,
       });
-      
+
       setVibeData(response.data);
       setIsSuccess(true);
-      
+
       setTimeout(() => {
         if (successHeadingRef.current) {
           successHeadingRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -183,7 +184,7 @@ export function GenerateVibeForm() {
     setErrors({});
     setShowSummaryAlert(false);
     setApiError(null);
-    
+
     setTimeout(() => {
       moodRef.current?.focus();
     }, 50);
@@ -209,15 +210,16 @@ export function GenerateVibeForm() {
         {apiError ? `Error: ${apiError}` : ""}
       </div>
 
-      <form 
-        noValidate 
-        onSubmit={handleSubmit} 
-        className="flex flex-col lg:flex-row gap-10 lg:gap-16 w-full"
+      <form
+        noValidate
+        onSubmit={handleSubmit}
+        className="mx-auto mt-6 flex max-w-[1220px] items-start gap-5"
         aria-busy={isSubmitting}
       >
-        <div className="flex-1 flex flex-col gap-10 min-w-0">
+        {/* LEFT */}
+        <div className="flex w-[840px] flex-col gap-6">
           {apiError && (
-            <Alert variant="danger" title="Generation Failed" className="mb-2">
+            <Alert variant="danger" title="Generation Failed" className="mb-0">
               <div className="flex flex-col gap-3 items-start">
                 <p>{apiError}</p>
                 <Button variant="outline" size="sm" onClick={() => handleSubmit()} disabled={isSubmitting}>
@@ -228,60 +230,40 @@ export function GenerateVibeForm() {
           )}
 
           {showSummaryAlert && Object.keys(errors).length > 0 && !apiError && (
-            <Alert variant="danger" title="Complete your Vibe" className="mb-2">
+            <Alert variant="danger" title="Complete your Vibe" className="mb-0">
               Choose the missing details and try again.
             </Alert>
           )}
 
-          <MoodSelector 
-            ref={moodRef}
-            value={values.mood} 
-            onChange={handleMoodChange} 
-            error={errors.mood} 
-            errorId={errors.mood ? "mood-error" : undefined}
-          />
-          
-          <TimeSelector 
-            ref={durationRef}
-            value={values.duration} 
-            onChange={handleDurationChange} 
-            error={errors.duration} 
-            errorId={errors.duration ? "duration-error" : undefined}
-          />
+          <div className="rounded-[24px] border border-white/10 bg-[#0A1020]/80 p-6 backdrop-blur-xl shadow-[0_20px_80px_rgba(0,0,0,.35)]">
+            <MoodSelector
+              ref={moodRef}
+              value={values.mood}
+              onChange={handleMoodChange}
+              error={errors.mood}
+              errorId={errors.mood ? "mood-error" : undefined}
+            />
+          </div>
 
-          <div className="pb-8">
-            <VibeIntentionField 
-              ref={intentionRef}
-              value={values.intention} 
-              onChange={handleIntentionChange} 
-              onBlur={handleIntentionBlur}
-              error={errors.intention} 
-              errorId={errors.intention ? "intention-error" : undefined}
+          <div className="rounded-[24px] border border-white/10 bg-[#0A1020]/80 p-6 backdrop-blur-xl shadow-[0_20px_80px_rgba(0,0,0,.35)]">
+            <TimeSelector
+              ref={durationRef}
+              value={values.duration}
+              onChange={handleDurationChange}
+              error={errors.duration}
+              errorId={errors.duration ? "duration-error" : undefined}
             />
           </div>
         </div>
 
-        <div className="lg:w-100 shrink-0">
-          <div className="sticky top-24 flex flex-col gap-6">
-            <VibeSelectionSummary 
-              mood={values.mood} 
-              duration={values.duration} 
-              intention={values.intention.trim()} 
-            />
-            
-            <div className="flex flex-col gap-3">
-              <Button type="submit" variant="primary" size="lg" disabled={isSubmitting} className="w-full font-semibold whitespace-nowrap">
-                {isSubmitting ? (
-                  <>
-                    <Spinner size="sm" className="mr-2" />
-                    Generating Vibe…
-                  </>
-                ) : (
-                  "Generate My Vibe"
-                )}
-              </Button>
-            </div>
-          </div>
+        {/* RIGHT */}
+        <div className="sticky top-24 w-[300px] shrink-0">
+          <VibeSelectionSummary
+            mood={values.mood}
+            duration={values.duration}
+            intention={values.intention.trim()}
+            isSubmitting={isSubmitting}
+          />
         </div>
       </form>
     </div>

@@ -121,36 +121,50 @@ def map_ai_output_to_vibe_data(request: GenerateVibeRequest, ai_output: Structur
         items=pinterest_items
     )
 
-    # Book
-    book_item = BookRecommendation(
-        id=str(uuid.uuid4()),
-        title=ai_output.book.title,
-        creator=ai_output.book.creator,
-        description=ai_output.book.description,
-        format=ai_output.book.format,
-        providerLabel="Goodreads",
-        actionLabel="View on Goodreads",
-        artworkVariant=VibeArtworkVariant.floating_pages,
-        tags=ai_output.book.tags,
-        duration=ai_output.book.duration
-    )
+        # Books
+    book_items = [
+            BookRecommendation(
+                id=str(uuid.uuid4()),
+                title=book.title,
+                creator=book.creator,
+                description=book.description,
+                format=book.format,
+                providerLabel="Google Books",
+                actionLabel="View Book",
+                artworkVariant=VibeArtworkVariant.floating_pages,
+                tags=book.tags,
+                duration=book.duration,
+            )
+            for book in ai_output.books
+        ]
+
     book_section = VibeMediaSection(
-        id=str(uuid.uuid4()),
-        category=VibeMediaCategory.books,
-        eyebrow="Deep focus",
-        title="Reading material",
-        description="Words to lose yourself in.",
-        items=[book_item]
+            id=str(uuid.uuid4()),
+            category=VibeMediaCategory.books,
+            eyebrow="Deep focus",
+            title="Reading material",
+            description="Three books selected for your current vibe.",
+            items=book_items,
+        )
+    from app.schemas.vibe import VibeMediaData
+    
+    media_data = VibeMediaData(
+        music=music_items,
+        movies=[movie_item],
+        youtube=[youtube_item],
+        visuals=pinterest_items,
+        books=book_items
     )
 
     return GeneratedVibeData(
         id=vibe_id,
-        title=f"Your {request.mood.value.capitalize()} Vibe",
-        mood=request.mood.value,
+        title=f"Your {request.mood.capitalize()} Vibe",
+        mood=request.mood,
         duration="Curated for you",
-        description=f"A personalized {request.mood.value} experience based on your current context.",
+        description=f"A personalized {request.mood} experience based on your current context.",
         intention="To elevate your current state and provide meaningful entertainment.",
-        journeySummary="We selected music to set the tone, visual inspiration to match the aesthetic, and longer-form entertainment for deep immersion.",
+        narrative="We selected music to set the tone, visual inspiration to match the aesthetic, and longer-form entertainment for deep immersion.",
+        media=media_data,
         sections=[
             music_section,
             movie_section,

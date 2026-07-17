@@ -20,48 +20,6 @@ export const primaryNavigation: AppNavigationItem[] = [
     description: "Your VibeSync overview",
     exact: true,
     icon: <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-  },
-  {
-    label: "Generate Vibe",
-    href: "/generate",
-    description: "Create a new entertainment experience",
-    icon: <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></svg>
-  },
-  {
-    label: "My Library",
-    href: "/library",
-    description: "Your entire media collection",
-    icon: <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
-  },
-  {
-    label: "Saved Vibes",
-    href: "/saved",
-    description: "Return to experiences you loved",
-    icon: <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-  },
-  {
-    label: "Recently Viewed",
-    href: "/recent",
-    description: "Jump back in",
-    icon: <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-  },
-  {
-    label: "Vibe History",
-    href: "/history",
-    description: "Revisit your previous Vibes",
-    icon: <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
-  },
-  {
-    label: "Playlists",
-    href: "/playlists",
-    description: "Your curated lists",
-    icon: <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="21" y1="4" x2="3" y2="4"/><line x1="21" y1="12" x2="3" y2="12"/><line x1="21" y1="20" x2="3" y2="20"/></svg>
-  },
-  {
-    label: "Bookmarks",
-    href: "/bookmarks",
-    description: "Saved media items",
-    icon: <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16l-7-3.5L5 21V5Z"/></svg>
   }
 ];
 
@@ -103,8 +61,8 @@ export function AppNavigation({ items, "aria-label": ariaLabel, className, onNav
             className={cn(
               "flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-body font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--focus-ring)]",
               isActive 
-                ? "bg-[var(--primary-subtle)] text-[var(--primary)]" 
-                : "text-foreground-muted hover:bg-[var(--surface-floating)] hover:text-foreground"
+                ? "bg-violet-500/20 text-violet-100 shadow-[0_0_20px_rgba(139,92,246,0.3)] border border-violet-500/30" 
+                : "text-white/50 hover:bg-white/5 hover:text-white/90 hover:shadow-[0_0_15px_rgba(255,255,255,0.05)]"
             )}
             title={item.description}
           >

@@ -1,0 +1,21 @@
+@keyframes lightBeam {
+
+  0% {
+    opacity: .05;
+    transform: translateY(-20px);
+  }
+
+  50% {
+    opacity: .18;
+  }
+
+  100% {
+    opacity: .05;
+    transform: translateY(20px);
+  }
+
+}
+
+.animate-light-beam{
+    animation: lightBeam 7s ease-in-out infinite;
+}

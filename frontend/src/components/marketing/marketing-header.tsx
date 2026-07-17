@@ -61,12 +61,12 @@ export function MarketingHeader() {
                   <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
                 </svg>
               </button>
-              <Link href="/login">
-                <Button variant="outline" size="sm" className="bg-transparent border-white/20 text-white hover:bg-white/10 hover:border-white/30 rounded-xl px-5 h-9 font-medium">Sign In</Button>
-              </Link>
-              <Link href="/signup">
-                <Button size="sm" className="bg-gradient-to-r from-[#9d4edd] via-[#d946ef] to-[#ff5e7e] text-white border-0 hover:opacity-90 rounded-xl px-5 h-9 font-medium shadow-none">Get Started Free</Button>
-              </Link>
+              <Button variant="outline" size="sm" className="bg-transparent border-white/20 text-white hover:bg-white/10 hover:border-white/30 rounded-xl px-5 h-9 font-medium" asChild>
+                <Link href="/login">Sign In</Link>
+              </Button>
+              <Button size="sm" className="bg-gradient-to-r from-[#9d4edd] via-[#d946ef] to-[#ff5e7e] text-white border-0 hover:opacity-90 rounded-xl px-5 h-9 font-medium shadow-none" asChild>
+                <Link href="/signup">Get Started Free</Link>
+              </Button>
             </div>
 
             {/* Mobile Menu Trigger */}

@@ -3,3 +3,8 @@ httpx
 uvicorn[standard]
 pydantic-settings
 groq
+sqlalchemy
+asyncpg
+alembic
+passlib[bcrypt]
+python-jose[cryptography]

@@ -34,6 +34,14 @@ class Settings(BaseSettings):
     VISUAL_PROVIDER_API_KEY: Optional[str] = None
     GOOGLE_BOOKS_API_KEY: Optional[str] = None
 
+    # Database
+    DATABASE_URL: str
+
+    # Auth
+    AUTH_SECRET_KEY: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+
     CORS_ORIGINS: Any = Field(
         default=["http://localhost:3000"]
     )

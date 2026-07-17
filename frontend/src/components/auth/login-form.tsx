@@ -95,7 +95,7 @@ export function LoginForm() {
     }));
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (isSubmitting) return;
 
@@ -116,10 +116,27 @@ export function LoginForm() {
     setShowSummaryAlert(false);
     setIsSubmitting(true);
 
-    setTimeout(() => {
+    const formData = new FormData();
+    formData.append("email", values.email);
+    formData.append("password", values.password);
+
+    try {
+      const { loginAction } = await import("@/app/actions/auth");
+      const res = await loginAction(formData);
+
+      if (res?.error) {
+        setErrors({ email: res.error });
+        setShowSummaryAlert(true);
+        setIsSubmitting(false);
+      } else if (res?.success) {
+        setIsSuccess(true);
+        window.location.href = "/dashboard";
+      }
+    } catch (err) {
+      setErrors({ email: "An unexpected error occurred." });
+      setShowSummaryAlert(true);
       setIsSubmitting(false);
-      setIsSuccess(true);
-    }, 750);
+    }
   };
 
   const handleReset = () => {

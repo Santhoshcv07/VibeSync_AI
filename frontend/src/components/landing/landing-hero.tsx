@@ -38,8 +38,8 @@ export function LandingHero() {
             </p>
             
             <div className="flex flex-wrap items-center gap-4 mt-2">
-              <Link href="/generate">
-                <Button size="lg" className="bg-gradient-to-r from-[#7B3FE4] via-[#D946EF] to-[#FF5E7E] text-white border-0 hover:opacity-90 shadow-lg shadow-[#D946EF]/25 h-14 px-8 text-lg font-semibold rounded-2xl flex items-center gap-2 transition-transform hover:scale-[1.02]">
+              <Button size="lg" className="bg-gradient-to-r from-[#7B3FE4] via-[#D946EF] to-[#FF5E7E] text-white border-0 hover:opacity-90 shadow-lg shadow-[#D946EF]/25 h-14 px-8 text-lg font-semibold rounded-2xl flex items-center gap-2 transition-transform hover:scale-[1.02]" asChild>
+                <Link href="/generate">
                   <svg className="w-5 h-5 text-[#ffbe0b]" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 2L14.2 9.8L22 12L14.2 14.2L12 22L9.8 14.2L2 12L9.8 9.8L12 2Z" />
                   </svg>
@@ -47,8 +47,8 @@ export function LandingHero() {
                   <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M18 4L18.6 6.4L21 7L18.6 7.6L18 10L17.4 7.6L15 7L17.4 6.4L18 4ZM9 9L10.5 13.5L15 15L10.5 16.5L9 21L7.5 16.5L3 15L7.5 13.5L9 9Z" />
                   </svg>
-                </Button>
-              </Link>
+                </Link>
+              </Button>
               <button type="button" className="group flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-surface/50 transition-colors">
                 <div className="flex items-center justify-center w-12 h-12 rounded-full bg-surface border border-[var(--border-strong)] group-hover:border-primary/50 transition-colors">
                   {PlayIcon}
