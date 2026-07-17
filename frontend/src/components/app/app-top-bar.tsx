@@ -34,6 +34,10 @@ export function AppTopBar() {
       
       <div className="flex-1" />
       
+      <div className="hidden sm:block">
+        <Badge variant="info" className="py-0.5 pointer-events-none">Prototype workspace</Badge>
+      </div>
+      
       <AppUserMenu />
     </header>
   );

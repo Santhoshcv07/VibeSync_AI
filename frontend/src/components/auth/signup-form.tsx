@@ -114,7 +114,7 @@ export function SignupForm() {
     }));
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (isSubmitting) return;
 
@@ -141,28 +141,10 @@ export function SignupForm() {
     setShowSummaryAlert(false);
     setIsSubmitting(true);
 
-    const formData = new FormData();
-    formData.append("email", values.email);
-    formData.append("password", values.password);
-    formData.append("name", `${values.firstName} ${values.lastName}`.trim());
-
-    try {
-      const { signupAction } = await import("@/app/actions/auth");
-      const res = await signupAction(formData);
-
-      if (res?.error) {
-        setErrors({ email: res.error });
-        setShowSummaryAlert(true);
-        setIsSubmitting(false);
-      } else if (res?.success) {
-        setIsSuccess(true);
-        window.location.href = "/dashboard";
-      }
-    } catch (err) {
-      setErrors({ email: "An unexpected error occurred." });
-      setShowSummaryAlert(true);
+    setTimeout(() => {
       setIsSubmitting(false);
-    }
+      setIsSuccess(true);
+    }, 750);
   };
 
   const handleReset = () => {

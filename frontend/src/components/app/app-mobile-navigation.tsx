@@ -48,11 +48,10 @@ export function AppMobileNavigation() {
         </div>
 
         <div className="mt-6 pt-6 border-t border-[var(--border)] shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shrink-0 shadow-inner">
-              <span className="text-white font-semibold text-sm">S</span>
-            </div>
-          </div>
+          <Badge variant="info" className="mb-2">Prototype workspace</Badge>
+          <p className="text-caption text-foreground-subtle">
+            Authentication and personalized account data will be connected in a later phase.
+          </p>
         </div>
       </Drawer>
     </>

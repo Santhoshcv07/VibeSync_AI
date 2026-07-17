@@ -146,25 +146,14 @@ def map_ai_output_to_vibe_data(request: GenerateVibeRequest, ai_output: Structur
             description="Three books selected for your current vibe.",
             items=book_items,
         )
-    from app.schemas.vibe import VibeMediaData
-    
-    media_data = VibeMediaData(
-        music=music_items,
-        movies=[movie_item],
-        youtube=[youtube_item],
-        visuals=pinterest_items,
-        books=book_items
-    )
-
     return GeneratedVibeData(
         id=vibe_id,
-        title=f"Your {request.mood.capitalize()} Vibe",
-        mood=request.mood,
+        title=f"Your {request.mood.value.capitalize()} Vibe",
+        mood=request.mood.value,
         duration="Curated for you",
-        description=f"A personalized {request.mood} experience based on your current context.",
+        description=f"A personalized {request.mood.value} experience based on your current context.",
         intention="To elevate your current state and provide meaningful entertainment.",
-        narrative="We selected music to set the tone, visual inspiration to match the aesthetic, and longer-form entertainment for deep immersion.",
-        media=media_data,
+        journeySummary="We selected music to set the tone, visual inspiration to match the aesthetic, and longer-form entertainment for deep immersion.",
         sections=[
             music_section,
             movie_section,

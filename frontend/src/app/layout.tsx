@@ -18,9 +18,6 @@ export const metadata: Metadata = {
   title: "VibeSync AI",
   description:
     "Mood-aware entertainment discovery for music, videos, visuals, movies, and books.",
-  icons: {
-    icon: "/favicon.ico",
-  }
 };
 
 export default function RootLayout({

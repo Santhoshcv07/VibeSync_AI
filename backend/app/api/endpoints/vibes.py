@@ -3,17 +3,8 @@ from typing import List, Optional
 from pydantic import BaseModel, Field
 import httpx
 from urllib.parse import quote
-from app.schemas.vibe import GenerateVibeRequest, GeneratedVibeData, VibeHistoryItem
+from app.schemas.vibe import GenerateVibeRequest, GeneratedVibeData
 from app.schemas.core import APIErrorResponse, SuccessResponse
-from app.services.vibe_generation import VibeGenerationService
-from app.core.config import settings
-from app.api.deps import SessionDep, CurrentUser
-from app.models.vibe import Vibe
-from app.models.recommendation import Recommendation
-from sqlalchemy.future import select
-from sqlalchemy import desc
-from sqlalchemy.orm import joinedload
-from fastapi import HTTPException
 from app.services.vibe_generation import VibeGenerationService
 from app.core.config import settings
 
@@ -62,113 +53,10 @@ class BookItem(BaseModel):
 )
 async def generate_vibe(
     request: GenerateVibeRequest,
-    current_user: CurrentUser,
-    session: SessionDep,
     service: VibeGenerationService = Depends(get_vibe_generation_service)
 ):
     vibe_data = await service.generate(request)
-    
-    # Save vibe to DB
-    db_vibe = Vibe(
-        user_id=current_user.id,
-        mood=request.mood,
-        activity=request.activity,
-        time_of_day=request.timeOfDay,
-        energy_level=request.energyLevel,
-        ai_summary=vibe_data.narrative
-    )
-    session.add(db_vibe)
-    await session.commit()
-    await session.refresh(db_vibe)
-    
-    # Save recommendations
-    db_rec = Recommendation(
-        vibe_id=db_vibe.id,
-        music=[m.dict() for m in vibe_data.media.music] if vibe_data.media and vibe_data.media.music else [],
-        movies=[m.dict() for m in vibe_data.media.movies] if vibe_data.media and vibe_data.media.movies else [],
-        youtube=[m.dict() for m in vibe_data.media.youtube] if vibe_data.media and vibe_data.media.youtube else [],
-        books=[m.dict() for m in vibe_data.media.books] if vibe_data.media and vibe_data.media.books else [],
-        visuals=[m.dict() for m in vibe_data.media.visuals] if vibe_data.media and vibe_data.media.visuals else []
-    )
-    session.add(db_rec)
-    await session.commit()
-    
-    # inject the DB ID into the response
-    vibe_data.id = str(db_vibe.id)
     return SuccessResponse(data=vibe_data)
-
-@router.get("/history", response_model=SuccessResponse[List[VibeHistoryItem]])
-async def get_vibe_history(current_user: CurrentUser, session: SessionDep, limit: int = 10):
-    result = await session.execute(
-        select(Vibe).where(Vibe.user_id == current_user.id).order_by(desc(Vibe.created_at)).limit(limit)
-    )
-    vibes = result.scalars().all()
-    
-    history = []
-    for v in vibes:
-        history.append(VibeHistoryItem(
-            id=str(v.id),
-            mood=v.mood,
-            activity=v.activity,
-            timeOfDay=v.time_of_day,
-            energyLevel=v.energy_level,
-            aiSummary=v.ai_summary or "",
-            createdAt=v.created_at
-        ))
-    return SuccessResponse(data=history)
-
-@router.get("/{vibe_id}", response_model=SuccessResponse[GeneratedVibeData])
-async def get_vibe(vibe_id: int, current_user: CurrentUser, session: SessionDep):
-    result = await session.execute(
-        select(Vibe).options(joinedload(Vibe.recommendation)).where(Vibe.id == vibe_id, Vibe.user_id == current_user.id)
-    )
-    vibe = result.scalars().first()
-    
-    if not vibe:
-        raise HTTPException(status_code=404, detail="Vibe not found")
-        
-    rec = vibe.recommendation
-    
-    media_data = None
-    if rec:
-        from app.schemas.vibe import VibeMediaData
-        media_data = VibeMediaData(
-            music=rec.music or [],
-            movies=rec.movies or [],
-            youtube=rec.youtube or [],
-            books=rec.books or [],
-            visuals=rec.visuals or []
-        )
-    
-    vibe_data = GeneratedVibeData(
-        id=str(vibe.id),
-        title=f"{vibe.mood.capitalize()} {vibe.activity.capitalize()}",
-        mood=vibe.mood,
-        duration=vibe.time_of_day,
-        description=vibe.ai_summary or "",
-        intention=f"A personalized vibe for {vibe.activity} during {vibe.time_of_day} with {vibe.energy_level} energy.",
-        narrative=vibe.ai_summary or "",
-        media=media_data,
-        sections=[] # We don't reconstruct sections here for now, the frontend uses media_data
-    )
-    
-    return SuccessResponse(data=vibe_data)
-
-@router.delete("/{vibe_id}", response_model=SuccessResponse[dict])
-async def delete_vibe(vibe_id: int, current_user: CurrentUser, session: SessionDep):
-    result = await session.execute(
-        select(Vibe).where(Vibe.id == vibe_id, Vibe.user_id == current_user.id)
-    )
-    vibe = result.scalars().first()
-    
-    if not vibe:
-        raise HTTPException(status_code=404, detail="Vibe not found")
-        
-    await session.delete(vibe)
-    await session.commit()
-    
-    return SuccessResponse(data={"deleted": True})
-
 
 @router.post(
     "/music/search",

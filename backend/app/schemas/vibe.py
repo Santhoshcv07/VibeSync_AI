@@ -1,6 +1,5 @@
 from enum import Enum
 from typing import List, Optional, Union
-from datetime import datetime
 from pydantic import BaseModel, Field, field_validator
 
 class VibeMood(str, Enum):
@@ -47,24 +46,26 @@ class BaseRecommendation(BaseModel):
     title: str
     creator: str
     description: str
-    reason: str
-    imageUrl: str
-    destinationUrl: str
+    format: str
+    providerLabel: str
+    actionLabel: str
+    artworkVariant: VibeArtworkVariant
+    tags: List[str]
+    duration: Optional[str] = None
+    imageUrl: Optional[str] = None
+    destinationUrl: Optional[str] = None
 
 class MusicRecommendation(BaseRecommendation):
     category: VibeMediaCategory = Field(default=VibeMediaCategory.music)
-    duration: Optional[str] = None
 
 class MovieRecommendation(BaseRecommendation):
-    category: VibeMediaCategory = Field(default=VibeMediaCategory.movies)
-    year: Optional[int] = None
+    category: VibeMediaCategory = Field(default=VibeMediaCategory.movies_shows)
 
 class YouTubeRecommendation(BaseRecommendation):
     category: VibeMediaCategory = Field(default=VibeMediaCategory.youtube)
-    duration: Optional[str] = None
 
 class PinterestRecommendation(BaseRecommendation):
-    category: VibeMediaCategory = Field(default=VibeMediaCategory.visuals)
+    category: VibeMediaCategory = Field(default=VibeMediaCategory.visual_inspiration)
 
 class BookRecommendation(BaseRecommendation):
     category: VibeMediaCategory = Field(default=VibeMediaCategory.books)
@@ -85,13 +86,6 @@ class VibeMediaSection(BaseModel):
     description: str
     items: List[RecommendationItem]
 
-class VibeMediaData(BaseModel):
-    music: List[MusicRecommendation] = []
-    movies: List[MovieRecommendation] = []
-    youtube: List[YouTubeRecommendation] = []
-    visuals: List[PinterestRecommendation] = []
-    books: List[BookRecommendation] = []
-
 class GeneratedVibeData(BaseModel):
     id: str
     title: str
@@ -99,15 +93,5 @@ class GeneratedVibeData(BaseModel):
     duration: str
     description: str
     intention: str
-    narrative: str
-    media: Optional[VibeMediaData] = None
-    sections: List[VibeMediaSection] = []
-
-class VibeHistoryItem(BaseModel):
-    id: str
-    mood: str
-    activity: str
-    timeOfDay: str
-    energyLevel: str
-    aiSummary: str
-    createdAt: datetime
+    journeySummary: str
+    sections: List[VibeMediaSection]
