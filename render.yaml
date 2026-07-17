@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: vibesync-api
+    env: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: CORS_ORIGINS
+        # Update this to your deployed Vercel domain once you know it
+        value: "https://vibesync-ai.vercel.app"
+      - key: PYTHON_VERSION
+        value: 3.11.0
