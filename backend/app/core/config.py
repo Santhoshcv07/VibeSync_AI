@@ -35,10 +35,10 @@ class Settings(BaseSettings):
     GOOGLE_BOOKS_API_KEY: Optional[str] = None
 
     # Database
-    DATABASE_URL: str
+    DATABASE_URL: str = "sqlite+aiosqlite:///./vibesync.db"
 
     # Auth
-    AUTH_SECRET_KEY: str
+    AUTH_SECRET_KEY: str = "vibesync_dummy_dev_key"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
