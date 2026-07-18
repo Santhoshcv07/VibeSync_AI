@@ -69,7 +69,7 @@ Current runtime integration:
 - Safe cancellation during unmount
 - Verified browser-origin CORS
 
-Current integration is limited to:
+Current integration is limited to
 
 - `GET /health`
 
