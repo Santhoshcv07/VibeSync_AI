@@ -151,10 +151,7 @@ The backend API will be available at `http://localhost:8000`.
 - **The Study Session**: Needs 2 hours of high-focus instrumental music and aesthetic visuals without distracting lyrics or heavy plots.
 
 **Future Scope:**
-- 🎵 **Spotify / Apple Music Integration**: Direct playlist generation.
-- 📺 **Streaming Service Deep Links**: Click directly into Netflix, Hulu, or Max for the suggested movie.
-- 👫 **Shared Vibes**: Generate vibes tailored for multiple people based on blended preferences.
-- 📱 **Mobile App**: Port the experience to React Native for on-the-go discovery.
+
 
 ---
 
