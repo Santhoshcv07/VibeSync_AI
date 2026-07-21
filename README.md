@@ -3,6 +3,8 @@
 # 🌌 VibeSync AI
 **Your mood. Your time. Your universe.**
 
+A personalized, AI-powered entertainment discovery platform that creates tailored Vibe sessions based on your current mood, available time, energy levels, and preferences.
+
 
 [![Live Demo](https://img.shields.io/badge/Demo-Live_Now-success?style=for-the-badge&logo=vercel)](https://vibesync-ai.vercel.app)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=nextdotjs)](#)
