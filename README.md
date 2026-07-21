@@ -34,6 +34,12 @@ No more scrolling for hours. Just pure vibes.
 
 ## ✨ Features
 
+- **🧠 AI-Powered Curation**: Leverages LLMs to understand complex mood combinations and contextual needs.
+- **⏱️ Time-Aware Suggestions**: Recommends a 20-minute YouTube video when you have a short break, or an epic 2.5-hour movie when you have the whole evening.
+- **🎨 Visual Moodboards**: Generates aesthetic references and Pinterest boards that visually match your vibe.
+- **💾 History & Favorites**: Save your favorite generated vibes and revisit them whenever you want to recapture that feeling.
+- **⚡ Blazing Fast UI**: Built on Next.js App Router for an instantaneous, seamless user experience.
+
 
 ---
 
