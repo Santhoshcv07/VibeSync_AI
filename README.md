@@ -20,15 +20,7 @@ A personalized, AI-powered entertainment discovery platform that creates tailore
 
 ## 🎯 What it does
 
-Have you ever felt overwhelmed by choices when you just want to relax? VibeSync AI solves the "paradox of choice" by instantly generating a perfect blend of entertainment to match exactly how you feel right now. 
 
-You provide your current mood, how much time you have, and your energy level. Our AI engine processes this and crafts a **Vibe** — a curated session that can include:
-- 🎵 Music & Playlists
-- 🎬 Time-aware Movie & Video Recommendations
-- 📚 Book Suggestions
-- 🖼️ Visual Moodboards
-
-No more scrolling for hours. Just pure vibes.
 
 ---
 
